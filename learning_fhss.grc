@@ -307,63 +307,6 @@ blocks:
     coordinate: [1232, 308.0]
     rotation: 0
     state: true
-- name: blocks_throttle_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1600, 188.0]
-    rotation: 0
-    state: true
-- name: blocks_throttle_0_0
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1288, 660.0]
-    rotation: 0
-    state: bypassed
-- name: blocks_throttle_0_1
-  id: blocks_throttle
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [984, 84.0]
-    rotation: 0
-    state: bypassed
 - name: blocks_wavfile_source_0
   id: blocks_wavfile_source
   parameters:
@@ -723,7 +666,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1448, 348.0]
+    coordinate: [1488, 360.0]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0_0
@@ -995,20 +938,17 @@ connections:
 - [analog_agc_xx_0, '0', qtgui_freq_sink_x_0, '0']
 - [analog_frequency_modulator_fc_0, '0', freq_xlating_fir_filter_xxx_1, '0']
 - [analog_nbfm_rx_0, '0', analog_agc_xx_0, '0']
-- [analog_noise_source_x_0, '0', blocks_throttle_0_1, '0']
-- [blocks_add_xx_0, '0', blocks_throttle_0, '0']
+- [analog_noise_source_x_0, '0', filter_fft_low_pass_filter_0, '0']
+- [blocks_add_xx_0, '0', qtgui_waterfall_sink_x_0_0, '0']
+- [blocks_add_xx_0, '0', virtual_sink_0, '0']
 - [blocks_multiply_const_vxx_0, '0', blocks_add_xx_0, '1']
 - [blocks_multiply_const_vxx_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [blocks_throttle_0, '0', qtgui_waterfall_sink_x_0_0, '0']
-- [blocks_throttle_0, '0', virtual_sink_0, '0']
-- [blocks_throttle_0_0, '0', analog_nbfm_rx_0, '0']
-- [blocks_throttle_0_0, '0', qtgui_waterfall_sink_x_1, '0']
-- [blocks_throttle_0_1, '0', filter_fft_low_pass_filter_0, '0']
 - [blocks_wavfile_source_0, '0', rational_resampler_xxx_0, '0']
 - [epy_block_0, freq, freq_xlating_fir_filter_xxx_1, freq]
 - [epy_block_0_0, freq, freq_xlating_fir_filter_xxx_0, freq]
 - [filter_fft_low_pass_filter_0, '0', blocks_add_xx_0, '0']
-- [filter_fft_low_pass_filter_0_0, '0', blocks_throttle_0_0, '0']
+- [filter_fft_low_pass_filter_0_0, '0', analog_nbfm_rx_0, '0']
+- [filter_fft_low_pass_filter_0_0, '0', qtgui_waterfall_sink_x_1, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', filter_fft_low_pass_filter_0_0, '0']
 - [freq_xlating_fir_filter_xxx_0, '0', qtgui_waterfall_sink_x_1_0, '0']
 - [freq_xlating_fir_filter_xxx_1, '0', blocks_multiply_const_vxx_0, '0']
