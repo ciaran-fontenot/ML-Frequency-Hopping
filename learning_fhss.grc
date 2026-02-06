@@ -4,8 +4,7 @@ options:
     catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
-    comment: I created this flowgraph to learn how to create a simple FHSS TXer and
-      RXer on GR.
+    comment: ''
     copyright: Solomon
     description: ''
     gen_cmake: 'On'
@@ -400,7 +399,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [176, 696.0]
+    coordinate: [184, 712.0]
     rotation: 0
     state: true
 - name: filter_fft_low_pass_filter_0
@@ -409,11 +408,7 @@ blocks:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'Emulate narrowband jamming.
-
-      Somehow the regular LPF does not work.
-
-      I need the FFT LPF for it to work.'
+    comment: Emulate narrowband jamming.
     cutoff_freq: 15e3
     decim: '1'
     gain: '1'
@@ -437,11 +432,7 @@ blocks:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'NBFM RXer filter.
-
-      Somehow the regular LPF does not work.
-
-      I need the FFT LPF for it to work.'
+    comment: ''
     cutoff_freq: 15e3
     decim: '1'
     gain: '1'
