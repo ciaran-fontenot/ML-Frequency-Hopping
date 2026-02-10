@@ -15,6 +15,7 @@ from PyQt5.QtCore import QObject, pyqtSlot
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
+import pmt
 from gnuradio import filter
 from gnuradio.filter import firdes
 from gnuradio import gr
@@ -27,6 +28,8 @@ from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 import Capstone_2621_epy_block_0 as epy_block_0  # embedded python block
 import Capstone_2621_epy_block_0_0 as epy_block_0_0  # embedded python block
+import Capstone_2621_epy_block_1 as epy_block_1  # embedded python block
+import Capstone_2621_epy_block_1_0 as epy_block_1_0  # embedded python block
 import math
 import sip
 import time
@@ -378,8 +381,14 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, [1], 0, samp_rate)
         self.filter_fft_low_pass_filter_0_0 = filter.fft_filter_ccc(1, firdes.low_pass(1, samp_rate, 15e3, 3e3, window.WIN_HAMMING, 6.76), 1)
         self.filter_fft_low_pass_filter_0 = filter.fft_filter_ccc(1, firdes.low_pass(1, samp_rate, 15e3, 3e3, window.WIN_HAMMING, 6.76), 1)
+        self.epy_block_1_0 = epy_block_1_0.blk(seed=1, chan_spacing=200e3, mute_time_s=1e-2)
+        self.epy_block_1 = epy_block_1.blk(seed=1, chan_spacing=200e3, mute_time_s=10e-3)
         self.blocks_wavfile_source_0 = blocks.wavfile_source('/home/ciaran/Downloads/1-04. Welcome To The World of Pokemon! ~ Route 123.mp3', True)
+        self.blocks_throttle2_1 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
+        self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
+        self.blocks_mute_xx_0 = blocks.mute_cc(bool(False))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_cc(vol_lvl)
+        self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), 500)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_noise_source_x_0 = analog.noise_source_c(analog.GR_GAUSSIAN, noise_lvl, 0)
@@ -396,21 +405,27 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.epy_block_0, 'freq'), (self.freq_xlating_fir_filter_xxx_1, 'freq'))
-        self.msg_connect((self.epy_block_0_0, 'freq'), (self.freq_xlating_fir_filter_xxx_0, 'freq'))
+        self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.epy_block_1, 'tick'))
+        self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.epy_block_1_0, 'tick'))
+        self.msg_connect((self.epy_block_1, 'set_mute'), (self.blocks_mute_xx_0, 'set_mute'))
+        self.msg_connect((self.epy_block_1, 'freq'), (self.freq_xlating_fir_filter_xxx_0, 'freq'))
+        self.msg_connect((self.epy_block_1_0, 'freq'), (self.freq_xlating_fir_filter_xxx_1, 'freq'))
         self.connect((self.analog_agc_xx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.analog_agc_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.analog_frequency_modulator_fc_0, 0), (self.freq_xlating_fir_filter_xxx_1, 0))
         self.connect((self.analog_nbfm_rx_0, 0), (self.analog_agc_xx_0, 0))
         self.connect((self.analog_noise_source_x_0, 0), (self.filter_fft_low_pass_filter_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.blocks_add_xx_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
+        self.connect((self.blocks_mute_xx_0, 0), (self.blocks_throttle2_1, 0))
+        self.connect((self.blocks_throttle2_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.blocks_throttle2_0, 0), (self.qtgui_waterfall_sink_x_0_0, 0))
+        self.connect((self.blocks_throttle2_1, 0), (self.analog_nbfm_rx_0, 0))
+        self.connect((self.blocks_throttle2_1, 0), (self.qtgui_waterfall_sink_x_1, 0))
         self.connect((self.blocks_wavfile_source_0, 0), (self.rational_resampler_xxx_0, 0))
         self.connect((self.filter_fft_low_pass_filter_0, 0), (self.blocks_add_xx_0, 0))
-        self.connect((self.filter_fft_low_pass_filter_0_0, 0), (self.analog_nbfm_rx_0, 0))
-        self.connect((self.filter_fft_low_pass_filter_0_0, 0), (self.qtgui_waterfall_sink_x_1, 0))
+        self.connect((self.filter_fft_low_pass_filter_0_0, 0), (self.blocks_mute_xx_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.filter_fft_low_pass_filter_0_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_waterfall_sink_x_1_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_1, 0), (self.blocks_multiply_const_vxx_0, 0))
@@ -450,6 +465,8 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.analog_frequency_modulator_fc_0.set_sensitivity((2*math.pi*(5e3)/self.samp_rate))
+        self.blocks_throttle2_0.set_sample_rate(self.samp_rate)
+        self.blocks_throttle2_1.set_sample_rate(self.samp_rate)
         self.filter_fft_low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 15e3, 3e3, window.WIN_HAMMING, 6.76))
         self.filter_fft_low_pass_filter_0_0.set_taps(firdes.low_pass(1, self.samp_rate, 15e3, 3e3, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
