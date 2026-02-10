@@ -331,9 +331,9 @@ blocks:
       \ GRC will instantiate the first class it finds\nto get ports and parameters\
       \ of your block. The arguments to __init__  will\nbe the parameters. All of\
       \ them are required to have default values!\n\"\"\"\n\nimport numpy as np\n\
-      from gnuradio import gr\nimport pmt\n\n\nclass blk(gr.sync_block):  # other\
-      \ base classes are basic_block, decim_block, interp_block\n    \"\"\"Embedded\
-      \ Python Block example - a simple multiply const\"\"\"\n\n    def __init__(self):\
+      from gnuradio import gr\nimport pmt\nimport random\n\n\nclass blk(gr.sync_block):\
+      \  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
+      \"Embedded Python Block example - a simple multiply const\"\"\"\n\n    def __init__(self):\
       \  # only default arguments here\n        \"\"\"arguments to this function show\
       \ up as parameters in GRC\"\"\"\n        gr.sync_block.__init__(\n         \
       \   self,\n            name='Embedded Python Block',   # will show up in GRC\n\
@@ -342,13 +342,14 @@ blocks:
       \ is registered (properties work, too).\n        self.message_port_register_out(pmt.intern(\"\
       freq\"))\n        self.channel = 0\n\n    def work(self, input_items, output_items):\n\
       \        \"\"\"Useless function\"\"\"\n        return len(output_items[0])\n\
-      \n    def change_channel(self, activate_txer_fhss):\n        self.channel =\
-      \ (self.channel + 3)%8\n        if not activate_txer_fhss:\n            P_freq_cmd\
-      \ = pmt.cons(pmt.string_to_symbol(\"freq\"), pmt.from_double(0))\n         \
-      \   self.message_port_pub(pmt.intern(\"freq\"), P_freq_cmd)\n            return\n\
-      \        freq = self.channel * -200e3\n        P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"\
-      freq\"), pmt.from_double(freq))\n        self.message_port_pub(pmt.intern(\"\
-      freq\"), P_freq_cmd)\n        return 1\n"
+      \n    def change_channel(self, activate_txer_fhss):\n        rng = np.random.default_rng(seed=42)\n\
+      \        self.channel = (self.channel + rng.randint(1,100))%8\n        if not\
+      \ activate_txer_fhss:\n            P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"\
+      freq\"), pmt.from_double(0))\n            self.message_port_pub(pmt.intern(\"\
+      freq\"), P_freq_cmd)\n            return\n        freq = self.channel * -200e3\n\
+      \        P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"freq\"), pmt.from_double(freq))\n\
+      \        self.message_port_pub(pmt.intern(\"freq\"), P_freq_cmd)\n        return\
+      \ 1\n"
     affinity: ''
     alias: ''
     comment: The FHSS Freq Synthesizer for hopping
@@ -381,13 +382,13 @@ blocks:
       \ is registered (properties work, too).\n        self.message_port_register_out(pmt.intern(\"\
       freq\"))\n        self.channel = 0\n\n    def work(self, input_items, output_items):\n\
       \        \"\"\"Useless function\"\"\"\n        return len(output_items[0])\n\
-      \n    def change_channel(self, activate_rxer_fhss):\n        self.channel =\
-      \ (self.channel + random.seed(1))%8\n        if not activate_rxer_fhss:\n  \
-      \          P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"freq\"), pmt.from_double(0))\n\
-      \            self.message_port_pub(pmt.intern(\"freq\"), P_freq_cmd)\n     \
-      \       return\n        freq = self.channel * 200e3\n        P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"\
-      freq\"), pmt.from_double(freq))\n        self.message_port_pub(pmt.intern(\"\
-      freq\"), P_freq_cmd)\n        return\n"
+      \n    def change_channel(self, activate_rxer_fhss):\n        rng = np.random.default_rng(seed=42)\n\
+      \        self.channel = (self.channel + rng.randint(1,100))%8\n        if not\
+      \ activate_rxer_fhss:\n            P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"\
+      freq\"), pmt.from_double(0))\n            self.message_port_pub(pmt.intern(\"\
+      freq\"), P_freq_cmd)\n            return\n        freq = self.channel * 200e3\n\
+      \        P_freq_cmd = pmt.cons(pmt.string_to_symbol(\"freq\"), pmt.from_double(freq))\n\
+      \        self.message_port_pub(pmt.intern(\"freq\"), P_freq_cmd)\n        return\n"
     affinity: ''
     alias: ''
     comment: The FHSS Freq Synthesizer for dehopping

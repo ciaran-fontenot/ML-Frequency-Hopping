@@ -10,6 +10,7 @@ import numpy as np
 from gnuradio import gr
 import pmt
 import random
+from datetime import datetime
 
 
 class blk(gr.sync_block):  # other base classes are basic_block, decim_block, interp_block
@@ -32,8 +33,9 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
         """Useless function"""
         return len(output_items[0])
 
-    def change_channel(self, activate_rxer_fhss):
-        self.channel = (self.channel + random.seed(1)*100)%8
+    def change_channel(self, activate_rxer_fhss):  
+        random.seed(int(datetime.now().timestamp()))
+        self.channel = (self.channel + random.randint(1,1000)/100)%8
         if not activate_rxer_fhss:
             P_freq_cmd = pmt.cons(pmt.string_to_symbol("freq"), pmt.from_double(0))
             self.message_port_pub(pmt.intern("freq"), P_freq_cmd)
