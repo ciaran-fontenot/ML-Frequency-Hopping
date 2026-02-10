@@ -11,7 +11,6 @@
 from PyQt5 import Qt
 from gnuradio import qtgui
 from PyQt5 import QtCore
-from PyQt5.QtCore import QObject, pyqtSlot
 from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
@@ -26,14 +25,10 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-import Capstone_2621_epy_block_0 as epy_block_0  # embedded python block
-import Capstone_2621_epy_block_0_0 as epy_block_0_0  # embedded python block
 import Capstone_2621_epy_block_1 as epy_block_1  # embedded python block
 import Capstone_2621_epy_block_1_0 as epy_block_1_0  # embedded python block
 import math
 import sip
-import time
-import threading
 
 
 
@@ -73,12 +68,8 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.vol_lvl = vol_lvl = 0.001
-        self.variable_function_probe_0_0 = variable_function_probe_0_0 = 0
-        self.variable_function_probe_0 = variable_function_probe_0 = 0
         self.samp_rate = samp_rate = 4.8e6
         self.noise_lvl = noise_lvl = 0
-        self.activate_txer_fhss = activate_txer_fhss = 1
-        self.activate_rxer_fhss = activate_rxer_fhss = 1
 
         ##################################################
         # Blocks
@@ -107,88 +98,6 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self._noise_lvl_range = qtgui.Range(0, 0.1, 0.01, 0, 200)
         self._noise_lvl_win = qtgui.RangeWidget(self._noise_lvl_range, self.set_noise_lvl, "Noise Lvl", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._noise_lvl_win)
-        self.epy_block_0_0 = epy_block_0_0.blk()
-        self.epy_block_0 = epy_block_0.blk()
-        # Create the options list
-        self._activate_txer_fhss_options = [0, 1]
-        # Create the labels list
-        self._activate_txer_fhss_labels = ['Deactivate', 'Activate']
-        # Create the combo box
-        # Create the radio buttons
-        self._activate_txer_fhss_group_box = Qt.QGroupBox("Activate TX FHSS" + ": ")
-        self._activate_txer_fhss_box = Qt.QHBoxLayout()
-        class variable_chooser_button_group(Qt.QButtonGroup):
-            def __init__(self, parent=None):
-                Qt.QButtonGroup.__init__(self, parent)
-            @pyqtSlot(int)
-            def updateButtonChecked(self, button_id):
-                self.button(button_id).setChecked(True)
-        self._activate_txer_fhss_button_group = variable_chooser_button_group()
-        self._activate_txer_fhss_group_box.setLayout(self._activate_txer_fhss_box)
-        for i, _label in enumerate(self._activate_txer_fhss_labels):
-            radio_button = Qt.QRadioButton(_label)
-            self._activate_txer_fhss_box.addWidget(radio_button)
-            self._activate_txer_fhss_button_group.addButton(radio_button, i)
-        self._activate_txer_fhss_callback = lambda i: Qt.QMetaObject.invokeMethod(self._activate_txer_fhss_button_group, "updateButtonChecked", Qt.Q_ARG("int", self._activate_txer_fhss_options.index(i)))
-        self._activate_txer_fhss_callback(self.activate_txer_fhss)
-        self._activate_txer_fhss_button_group.buttonClicked[int].connect(
-            lambda i: self.set_activate_txer_fhss(self._activate_txer_fhss_options[i]))
-        self.top_layout.addWidget(self._activate_txer_fhss_group_box)
-        # Create the options list
-        self._activate_rxer_fhss_options = [0, 1]
-        # Create the labels list
-        self._activate_rxer_fhss_labels = ['Deactivate', 'Activate']
-        # Create the combo box
-        # Create the radio buttons
-        self._activate_rxer_fhss_group_box = Qt.QGroupBox("Activate RX FHSS" + ": ")
-        self._activate_rxer_fhss_box = Qt.QHBoxLayout()
-        class variable_chooser_button_group(Qt.QButtonGroup):
-            def __init__(self, parent=None):
-                Qt.QButtonGroup.__init__(self, parent)
-            @pyqtSlot(int)
-            def updateButtonChecked(self, button_id):
-                self.button(button_id).setChecked(True)
-        self._activate_rxer_fhss_button_group = variable_chooser_button_group()
-        self._activate_rxer_fhss_group_box.setLayout(self._activate_rxer_fhss_box)
-        for i, _label in enumerate(self._activate_rxer_fhss_labels):
-            radio_button = Qt.QRadioButton(_label)
-            self._activate_rxer_fhss_box.addWidget(radio_button)
-            self._activate_rxer_fhss_button_group.addButton(radio_button, i)
-        self._activate_rxer_fhss_callback = lambda i: Qt.QMetaObject.invokeMethod(self._activate_rxer_fhss_button_group, "updateButtonChecked", Qt.Q_ARG("int", self._activate_rxer_fhss_options.index(i)))
-        self._activate_rxer_fhss_callback(self.activate_rxer_fhss)
-        self._activate_rxer_fhss_button_group.buttonClicked[int].connect(
-            lambda i: self.set_activate_rxer_fhss(self._activate_rxer_fhss_options[i]))
-        self.top_layout.addWidget(self._activate_rxer_fhss_group_box)
-        def _variable_function_probe_0_0_probe():
-          while True:
-
-            val = self.epy_block_0_0.change_channel(activate_rxer_fhss)
-            try:
-              try:
-                self.doc.add_next_tick_callback(functools.partial(self.set_variable_function_probe_0_0,val))
-              except AttributeError:
-                self.set_variable_function_probe_0_0(val)
-            except AttributeError:
-              pass
-            time.sleep(1.0 / (1))
-        _variable_function_probe_0_0_thread = threading.Thread(target=_variable_function_probe_0_0_probe)
-        _variable_function_probe_0_0_thread.daemon = True
-        _variable_function_probe_0_0_thread.start()
-        def _variable_function_probe_0_probe():
-          while True:
-
-            val = self.epy_block_0.change_channel(activate_txer_fhss)
-            try:
-              try:
-                self.doc.add_next_tick_callback(functools.partial(self.set_variable_function_probe_0,val))
-              except AttributeError:
-                self.set_variable_function_probe_0(val)
-            except AttributeError:
-              pass
-            time.sleep(1.0 / (1))
-        _variable_function_probe_0_thread = threading.Thread(target=_variable_function_probe_0_probe)
-        _variable_function_probe_0_thread.daemon = True
-        _variable_function_probe_0_thread.start()
         self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
                 interpolation=100,
                 decimation=1,
@@ -447,18 +356,6 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.vol_lvl = vol_lvl
         self.blocks_multiply_const_vxx_0.set_k(self.vol_lvl)
 
-    def get_variable_function_probe_0_0(self):
-        return self.variable_function_probe_0_0
-
-    def set_variable_function_probe_0_0(self, variable_function_probe_0_0):
-        self.variable_function_probe_0_0 = variable_function_probe_0_0
-
-    def get_variable_function_probe_0(self):
-        return self.variable_function_probe_0
-
-    def set_variable_function_probe_0(self, variable_function_probe_0):
-        self.variable_function_probe_0 = variable_function_probe_0
-
     def get_samp_rate(self):
         return self.samp_rate
 
@@ -481,20 +378,6 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
     def set_noise_lvl(self, noise_lvl):
         self.noise_lvl = noise_lvl
         self.analog_noise_source_x_0.set_amplitude(self.noise_lvl)
-
-    def get_activate_txer_fhss(self):
-        return self.activate_txer_fhss
-
-    def set_activate_txer_fhss(self, activate_txer_fhss):
-        self.activate_txer_fhss = activate_txer_fhss
-        self._activate_txer_fhss_callback(self.activate_txer_fhss)
-
-    def get_activate_rxer_fhss(self):
-        return self.activate_rxer_fhss
-
-    def set_activate_rxer_fhss(self, activate_rxer_fhss):
-        self.activate_rxer_fhss = activate_rxer_fhss
-        self._activate_rxer_fhss_callback(self.activate_rxer_fhss)
 
 
 
