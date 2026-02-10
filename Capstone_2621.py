@@ -5,9 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Frequency Hopping Spread Spectrum Lab
-# Author: Solomon
-# Copyright: Solomon
+# Title: Frequency Hopping Spread Spectrum
 # GNU Radio version: 3.10.9.2
 
 from PyQt5 import Qt
@@ -36,12 +34,12 @@ import threading
 
 
 
-class learning_fhss(gr.top_block, Qt.QWidget):
+class Capstone_2621(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Frequency Hopping Spread Spectrum Lab", catch_exceptions=True)
+        gr.top_block.__init__(self, "Frequency Hopping Spread Spectrum", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Frequency Hopping Spread Spectrum Lab")
+        self.setWindowTitle("Frequency Hopping Spread Spectrum")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -59,7 +57,7 @@ class learning_fhss(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "learning_fhss")
+        self.settings = Qt.QSettings("GNU Radio", "Capstone_2621")
 
         try:
             geometry = self.settings.value("geometry")
@@ -420,7 +418,7 @@ class learning_fhss(gr.top_block, Qt.QWidget):
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "learning_fhss")
+        self.settings = Qt.QSettings("GNU Radio", "Capstone_2621")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -484,7 +482,7 @@ class learning_fhss(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=learning_fhss, options=None):
+def main(top_block_cls=Capstone_2621, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

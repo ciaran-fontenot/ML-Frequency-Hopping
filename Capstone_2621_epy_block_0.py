@@ -9,6 +9,7 @@ be the parameters. All of them are required to have default values!
 import numpy as np
 from gnuradio import gr
 import pmt
+import random
 
 
 class blk(gr.sync_block):  # other base classes are basic_block, decim_block, interp_block
@@ -32,7 +33,7 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
         return len(output_items[0])
 
     def change_channel(self, activate_txer_fhss):
-        self.channel = (self.channel + 3)%8
+        self.channel = (self.channel + random.seed(1)*100)%8
         if not activate_txer_fhss:
             P_freq_cmd = pmt.cons(pmt.string_to_symbol("freq"), pmt.from_double(0))
             self.message_port_pub(pmt.intern("freq"), P_freq_cmd)
