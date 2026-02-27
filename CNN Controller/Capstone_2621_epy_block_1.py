@@ -21,7 +21,7 @@ class blk(gr.basic_block):
       - If no tx_freq has been seen yet, it can optionally hop using the RNG
         on ticks (set follow_only=True to disable fallback).
     """
-    def __init__(self, seed=12345, chan_spacing=200e3, mute_time_s=0.02, follow_only=True):
+    def __init__(self, seed=12345, chan_spacing=200e3, mute_time_s=0.02, follow_only=True, num_chans=8):
         gr.basic_block.__init__(self, name='FHSS RX controller (follows TX)', in_sig=None, out_sig=None)
 
         # OUT ports
@@ -36,14 +36,20 @@ class blk(gr.basic_block):
         self.message_port_register_in(pmt.intern("tx_freq"))
         self.set_msg_handler(pmt.intern("tx_freq"), self._on_tx_freq)
 
+        # Optional jammer channel hints from spectrum classifier/data capture path
+        self.message_port_register_in(pmt.intern("jam_channels"))
+        self.set_msg_handler(pmt.intern("jam_channels"), self._on_jam_channels)
+
         self.rng = random.Random(int(seed))
         self.chan = 0
         self.chan_spacing = float(chan_spacing)
         self.mute_time_s = float(mute_time_s)
         self.follow_only = bool(follow_only)
+        self.num_chans = max(2, int(num_chans))
 
         self.active = True
         self._have_tx = False
+        self._jam_channels = set()
 
     def set_active(self, active: bool):
         self.active = bool(active)
@@ -99,6 +105,22 @@ class blk(gr.basic_block):
             # Don't crash the flowgraph on bad messages
             return
 
+
+    def _on_jam_channels(self, msg):
+        try:
+            chs = set()
+            if pmt.is_u32vector(msg):
+                vals = pmt.u32vector_elements(msg)
+                chs = {int(v) for v in vals}
+            elif pmt.is_pair(msg):
+                # graceful fallback if sent as ("channels" . u32vector)
+                msg = pmt.cdr(msg)
+                if pmt.is_u32vector(msg):
+                    chs = {int(v) for v in pmt.u32vector_elements(msg)}
+            self._jam_channels = chs
+        except Exception:
+            return
+
     def _on_tick(self, msg):
         """
         Optional fallback: if you aren't wired to TX messages, or you want RX
@@ -113,7 +135,14 @@ class blk(gr.basic_block):
             # Once we're following TX, ignore ticks.
             return
 
-        # Fallback hop (same sequence as TX if ticks are aligned)
-        self.chan = (self.chan + self.rng.randint(1, 7)) % 8
+        # Fallback hop with jammer-aware channel skip if hints exist.
+        tries = 0
+        while tries < 16:
+            self.chan = (self.chan + self.rng.randint(1, self.num_chans - 1)) % self.num_chans
+            if self._jam_channels and self.chan in self._jam_channels:
+                tries += 1
+                continue
+            break
+
         freq = -self.chan * self.chan_spacing  # RX shifts DOWN
         self._retune_with_mute(freq)

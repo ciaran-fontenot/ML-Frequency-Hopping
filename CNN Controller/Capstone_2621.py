@@ -30,6 +30,7 @@ from gnuradio import eng_notation
 import Capstone_2621_epy_block_0 as epy_block_0  # embedded python block
 import Capstone_2621_epy_block_1 as epy_block_1  # embedded python block
 import Capstone_2621_epy_block_1_0 as epy_block_1_0  # embedded python block
+import Capstone_2621_epy_block_2 as epy_block_2  # embedded python block
 import math
 import sip
 
@@ -339,8 +340,9 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.filter_fft_low_pass_filter_0 = filter.fft_filter_ccc(1, firdes.low_pass(1, samp_rate, jamming_range, 100, window.WIN_HAMMING, 6.76), 1)
         self.fft_vxx_0 = fft.fft_vcc(1024, True, window.blackmanharris(1024), True, 1)
         self.epy_block_1_0 = epy_block_1_0.blk(seed=1, chan_spacing=200e3, chan_bw_hz=60e3, mute_time_s=1e-2, guard_hz=1000, num_chans=10, max_attempts=100)
-        self.epy_block_1 = epy_block_1.blk(seed=1, chan_spacing=200e3, mute_time_s=10e-3, follow_only=1)
-        self.epy_block_0 = epy_block_0.blk(samp_rate=4.8e6, nfft=1024, thresh_db=40, publish_every=10000)
+        self.epy_block_1 = epy_block_1.blk(seed=1, chan_spacing=200e3, mute_time_s=10e-3, follow_only=1, num_chans=10)
+        self.epy_block_0 = epy_block_0.blk(samp_rate=4.8e6, nfft=1024, thresh_db=40, publish_every=10000, chan_spacing=200e3, chan_bw_hz=60e3, num_chans=10)
+        self.epy_block_2 = epy_block_2.blk(nfft=1024, history_len=128, save_every=500, out_dir="cnn_training_data", samp_rate=4.8e6, chan_spacing=200e3, chan_bw_hz=60e3, num_chans=10)
         self.blocks_wavfile_source_0 = blocks.wavfile_source('/home/ciaran/Downloads/1-04. Welcome To The World of Pokemon! ~ Route 123.mp3', True)
         self.blocks_var_to_msg_0 = blocks.var_to_msg_pair('freq')
         self.blocks_throttle2_1 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
@@ -374,6 +376,8 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.msg_connect((self.blocks_var_to_msg_0, 'msgout'), (self.freq_xlating_fir_filter_xxx_2, 'freq'))
         self.msg_connect((self.epy_block_0, 'edges'), (self.blocks_message_debug_0, 'print'))
         self.msg_connect((self.epy_block_0, 'edges'), (self.epy_block_1_0, 'edges'))
+        self.msg_connect((self.epy_block_0, 'edges'), (self.epy_block_2, 'edges'))
+        self.msg_connect((self.epy_block_0, 'jam_channels'), (self.epy_block_1, 'jam_channels'))
         self.msg_connect((self.epy_block_1, 'set_mute'), (self.blocks_mute_xx_0, 'set_mute'))
         self.msg_connect((self.epy_block_1, 'freq'), (self.freq_xlating_fir_filter_xxx_0, 'freq'))
         self.msg_connect((self.epy_block_1_0, 'freq'), (self.epy_block_1, 'tx_freq'))
@@ -385,6 +389,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.connect((self.analog_noise_source_x_0, 0), (self.filter_fft_low_pass_filter_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.epy_block_0, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.epy_block_2, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
         self.connect((self.blocks_mute_xx_0, 0), (self.blocks_throttle2_1, 0))
