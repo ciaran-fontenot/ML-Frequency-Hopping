@@ -1,0 +1,2 @@
+hop_history=64
+avoid_channels=0,1,2,3,4,5,7,8
