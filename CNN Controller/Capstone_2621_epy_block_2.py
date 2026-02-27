@@ -8,7 +8,8 @@ from gnuradio import gr
 class blk(gr.sync_block):
     """
     Capture receiver-side FFT power vectors and persist spectrogram image snippets
-    for CNN training. Labels are saved from jammer band edges as avoided FHSS channels.
+    for CNN training. Labels are inferred from the TX hop sequence itself by
+    identifying channels that are not being visited over a rolling hop window.
     """
 
     def __init__(
@@ -21,6 +22,8 @@ class blk(gr.sync_block):
         chan_spacing=200e3,
         chan_bw_hz=60e3,
         num_chans=10,
+        hop_history=64,
+        min_absence_ratio=0.6,
     ):
         gr.sync_block.__init__(
             self,
@@ -37,45 +40,61 @@ class blk(gr.sync_block):
         self.chan_spacing = float(chan_spacing)
         self.chan_bw_hz = float(chan_bw_hz)
         self.num_chans = int(num_chans)
+        self.hop_history = max(4, int(hop_history))
+        self.min_absence_ratio = float(min_absence_ratio)
 
         self._rows = []
         self._count = 0
-        self.jam_lo = 0.0
-        self.jam_hi = 0.0
+        self._tx_chan_history = []
+        self._last_avoid_channels = []
 
-        self.message_port_register_in(pmt.intern("edges"))
-        self.set_msg_handler(pmt.intern("edges"), self._on_edges)
+        self.message_port_register_in(pmt.intern("tx_freq"))
+        self.set_msg_handler(pmt.intern("tx_freq"), self._on_tx_freq)
+        self.message_port_register_out(pmt.intern("avoid_channels"))
 
         os.makedirs(self.out_dir, exist_ok=True)
 
-    def _on_edges(self, msg):
+    def _on_tx_freq(self, msg):
         try:
-            if not pmt.is_dict(msg):
+            tx_f = None
+            if pmt.is_pair(msg):
+                key = pmt.car(msg)
+                val = pmt.cdr(msg)
+                if pmt.is_symbol(key) and pmt.symbol_to_string(key) == "freq":
+                    tx_f = float(pmt.to_double(val))
+            elif pmt.is_dict(msg):
+                f_p = pmt.dict_ref(msg, pmt.intern("freq"), pmt.PMT_NIL)
+                if f_p is not pmt.PMT_NIL:
+                    tx_f = float(pmt.to_double(f_p))
+
+            if tx_f is None:
                 return
-            lo_p = pmt.dict_ref(msg, pmt.intern("f_lo_hz"), pmt.PMT_NIL)
-            hi_p = pmt.dict_ref(msg, pmt.intern("f_hi_hz"), pmt.PMT_NIL)
-            if lo_p is pmt.PMT_NIL or hi_p is pmt.PMT_NIL:
-                return
-            lo = float(pmt.to_double(lo_p))
-            hi = float(pmt.to_double(hi_p))
-            if hi < lo:
-                lo, hi = hi, lo
-            self.jam_lo, self.jam_hi = lo, hi
+
+            chan = int(round(tx_f / self.chan_spacing))
+            chan = chan % self.num_chans
+            self._tx_chan_history.append(chan)
+            if len(self._tx_chan_history) > self.hop_history:
+                self._tx_chan_history = self._tx_chan_history[-self.hop_history:]
+
+            self._last_avoid_channels = self._infer_avoid_channels()
         except Exception:
             return
 
-    def _channel_list(self):
-        if self.jam_lo == 0.0 and self.jam_hi == 0.0:
+    def _infer_avoid_channels(self):
+        if len(self._tx_chan_history) < self.hop_history:
             return []
-        chans = []
-        half = 0.5 * self.chan_bw_hz
-        for c in range(self.num_chans):
-            center = c * self.chan_spacing
-            lo = center - half
-            hi = center + half
-            if (lo <= self.jam_hi) and (self.jam_lo <= hi):
-                chans.append(c)
-        return chans
+
+        counts = np.zeros(self.num_chans, dtype=np.int32)
+        for ch in self._tx_chan_history:
+            if 0 <= ch < self.num_chans:
+                counts[ch] += 1
+
+        threshold = self.hop_history * (1.0 - self.min_absence_ratio)
+        return [int(idx) for idx, c in enumerate(counts) if float(c) <= threshold]
+
+    def _pub_avoid_channels(self):
+        vec = pmt.init_u32vector(len(self._last_avoid_channels), self._last_avoid_channels)
+        self.message_port_pub(pmt.intern("avoid_channels"), vec)
 
     def _write_training_pair(self):
         if len(self._rows) < self.history_len:
@@ -96,11 +115,12 @@ class blk(gr.sync_block):
             f.write(header)
             f.write(img.tobytes())
 
-        chans = self._channel_list()
+        chans = list(self._last_avoid_channels)
         with open(stem + ".txt", "w", encoding="utf-8") as f:
-            f.write(f"jam_lo_hz={self.jam_lo}\n")
-            f.write(f"jam_hi_hz={self.jam_hi}\n")
+            f.write(f"hop_history={self.hop_history}\n")
             f.write("avoid_channels=" + ",".join(str(c) for c in chans) + "\n")
+
+        self._pub_avoid_channels()
 
     def work(self, input_items, output_items):
         specs = input_items[0]

@@ -36,9 +36,13 @@ class blk(gr.basic_block):
         self.message_port_register_in(pmt.intern("tx_freq"))
         self.set_msg_handler(pmt.intern("tx_freq"), self._on_tx_freq)
 
-        # Optional jammer channel hints from spectrum classifier/data capture path
+        # Optional avoided-channel hints inferred from spectrogram labels
+        self.message_port_register_in(pmt.intern("avoid_channels"))
+        self.set_msg_handler(pmt.intern("avoid_channels"), self._on_avoid_channels)
+
+        # Backward compatibility: accept old jammer-hint port name
         self.message_port_register_in(pmt.intern("jam_channels"))
-        self.set_msg_handler(pmt.intern("jam_channels"), self._on_jam_channels)
+        self.set_msg_handler(pmt.intern("jam_channels"), self._on_avoid_channels)
 
         self.rng = random.Random(int(seed))
         self.chan = 0
@@ -49,7 +53,7 @@ class blk(gr.basic_block):
 
         self.active = True
         self._have_tx = False
-        self._jam_channels = set()
+        self._avoid_channels = set()
 
     def set_active(self, active: bool):
         self.active = bool(active)
@@ -106,7 +110,7 @@ class blk(gr.basic_block):
             return
 
 
-    def _on_jam_channels(self, msg):
+    def _on_avoid_channels(self, msg):
         try:
             chs = set()
             if pmt.is_u32vector(msg):
@@ -117,7 +121,7 @@ class blk(gr.basic_block):
                 msg = pmt.cdr(msg)
                 if pmt.is_u32vector(msg):
                     chs = {int(v) for v in pmt.u32vector_elements(msg)}
-            self._jam_channels = chs
+            self._avoid_channels = chs
         except Exception:
             return
 
@@ -135,11 +139,11 @@ class blk(gr.basic_block):
             # Once we're following TX, ignore ticks.
             return
 
-        # Fallback hop with jammer-aware channel skip if hints exist.
+        # Fallback hop with avoided-channel skip if hints exist.
         tries = 0
         while tries < 16:
             self.chan = (self.chan + self.rng.randint(1, self.num_chans - 1)) % self.num_chans
-            if self._jam_channels and self.chan in self._jam_channels:
+            if self._avoid_channels and self.chan in self._avoid_channels:
                 tries += 1
                 continue
             break
