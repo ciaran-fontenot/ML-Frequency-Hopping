@@ -380,7 +380,6 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.msg_connect((self.epy_block_1, 'set_mute'), (self.blocks_mute_xx_0, 'set_mute'))
         self.msg_connect((self.epy_block_1, 'freq'), (self.freq_xlating_fir_filter_xxx_0, 'freq'))
         self.msg_connect((self.epy_block_1_0, 'freq'), (self.epy_block_1, 'tx_freq'))
-        self.msg_connect((self.epy_block_1_0, 'freq'), (self.epy_block_2, 'tx_freq'))
         self.msg_connect((self.epy_block_1_0, 'freq'), (self.freq_xlating_fir_filter_xxx_1, 'freq'))
         self.connect((self.analog_agc_xx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.analog_agc_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))
