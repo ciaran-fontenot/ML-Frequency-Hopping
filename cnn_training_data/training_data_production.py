@@ -332,7 +332,7 @@ def create_fhss_cnn_pgms_jammer_aware_clean(
 
 records = create_fhss_cnn_pgms_jammer_aware_clean(
     output_dir="cnn_fhss_clean_pgms",
-    jam_bandwidths_hz=[200e3, 400e3, 600e3],
+    jam_bandwidths_hz=[200e3, 400e3, 600e3, 800e3, 1e6,1.2e6],
     n_images_per_bw=200,
     sample_rate=2.0e6,
     chan_spacing=200e3,
