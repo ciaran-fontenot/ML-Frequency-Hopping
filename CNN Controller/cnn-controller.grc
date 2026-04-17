@@ -129,61 +129,45 @@ blocks:
     coordinate: [1504, 56.0]
     rotation: 0
     state: enabled
-- name: analog_agc_xx_0
-  id: analog_agc_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    gain: '0.1'
-    max_gain: '65536'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    rate: 1e-4
-    reference: '0.1'
-    type: float
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [2104, 800.0]
-    rotation: 0
-    state: enabled
-- name: analog_frequency_modulator_fc_0
-  id: analog_frequency_modulator_fc
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    sensitivity: 2*math.pi*(5e3)/samp_rate
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [736, 448.0]
-    rotation: 0
-    state: enabled
 - name: analog_nbfm_rx_0
   id: analog_nbfm_rx
   parameters:
     affinity: ''
     alias: ''
-    audio_rate: int(48e3)
+    audio_rate: '48000'
     comment: ''
     max_dev: 5e3
     maxoutbuf: '0'
     minoutbuf: '0'
-    quad_rate: int(48e5)
+    quad_rate: '480000'
     tau: 75e-6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1848, 864.0]
+    coordinate: [1240, 944.0]
     rotation: 0
-    state: true
+    state: enabled
+- name: analog_nbfm_tx_0
+  id: analog_nbfm_tx
+  parameters:
+    affinity: ''
+    alias: ''
+    audio_rate: '48000'
+    comment: ''
+    fh: '-1.0'
+    max_dev: 5e3
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    quad_rate: int(samp_rate)
+    tau: 75e-6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [512, 360.0]
+    rotation: 0
+    state: enabled
 - name: analog_noise_source_x_0
   id: analog_noise_source_x
   parameters:
@@ -217,25 +201,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2368, 936.0]
-    rotation: 0
-    state: enabled
-- name: blocks_add_xx_0
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [648, 920.0]
+    coordinate: [1960, 1088.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_mag_squared_0
@@ -251,7 +217,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 256.0]
+    coordinate: [880, 272.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_mag_squared_0_0
@@ -269,7 +235,7 @@ blocks:
     bus_structure: null
     coordinate: [976, 1280.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_message_debug_0
   id: blocks_message_debug
   parameters:
@@ -284,7 +250,7 @@ blocks:
     bus_structure: null
     coordinate: [1520, 296.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_message_strobe_0
   id: blocks_message_strobe
   parameters:
@@ -294,7 +260,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     msg: pmt.intern("TEST")
-    period: '1'
+    period: '1000'
   states:
     bus_sink: false
     bus_source: false
@@ -308,7 +274,25 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    const: vol_lvl
+    const: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1480, 992.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_1
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     type: complex
@@ -317,24 +301,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1160, 584.0]
-    rotation: 0
-    state: true
-- name: blocks_mute_xx_0
-  id: blocks_mute_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    mute: 'False'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1344, 792.0]
+    coordinate: [1040, 568.0]
     rotation: 0
     state: enabled
 - name: blocks_stream_to_vector_0
@@ -370,9 +337,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [176, 1256.0]
+    coordinate: [248, 1256.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_throttle2_0
   id: blocks_throttle2
   parameters:
@@ -391,7 +358,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1664, 520.0]
+    coordinate: [1776, 720.0]
     rotation: 0
     state: enabled
 - name: blocks_throttle2_0_0
@@ -454,9 +421,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [576, 1248.0]
+    coordinate: [704, 1256.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: blocks_throttle2_1
   id: blocks_throttle2
   parameters:
@@ -475,7 +442,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1512, 904.0]
+    coordinate: [224, 992.0]
     rotation: 0
     state: enabled
 - name: blocks_var_to_msg_0
@@ -510,7 +477,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [168, 464.0]
+    coordinate: [96, 368.0]
     rotation: 0
     state: true
 - name: epy_block_0
@@ -568,145 +535,126 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1224, 248.0]
-    rotation: 0
-    state: enabled
-- name: epy_block_1
-  id: epy_block
-  parameters:
-    _source_code: "import pmt\nimport random\nimport threading\nfrom gnuradio import\
-      \ gr\n\nclass blk(gr.basic_block):\n    \"\"\"\n    FHSS RX controller that\
-      \ follows the transmitter's hopping decisions.\n\n    Inputs (message ports):\n\
-      \      - \"tick\":     fallback hop trigger (optional; can be disconnected)\n\
-      \      - \"tx_freq\":  PMT pair (\"freq\", <double Hz>) from the TX controller\n\
-      \n    Outputs (message ports):\n      - \"freq\":      PMT pair (\"freq\", <double\
-      \ Hz>) to RX Freq Xlating FIR \"freq\"\n      - \"set_mute\":  PMT bool to Mute\
-      \ block \"set_mute\"\n\n    Behavior:\n      - When a tx_freq arrives, RX mutes,\
-      \ tunes to the *negative* of TX shift,\n        then unmutes after mute_time_s.\n\
-      \      - If no tx_freq has been seen yet, it can optionally hop using the RNG\n\
-      \        on ticks (set follow_only=True to disable fallback).\n    \"\"\"\n\
-      \    def __init__(self, seed=12345, chan_spacing=200e3, mute_time_s=0.02, follow_only=True):\n\
-      \        gr.basic_block.__init__(self, name='FHSS RX controller (follows TX)',\
-      \ in_sig=None, out_sig=None)\n\n        # OUT ports\n        self.message_port_register_out(pmt.intern(\"\
-      freq\"))       # to RX Freq Xlating FIR \"freq\"\n        self.message_port_register_out(pmt.intern(\"\
-      set_mute\"))   # to Mute block \"set_mute\"\n\n        # IN ports\n        self.message_port_register_in(pmt.intern(\"\
-      tick\"))\n        self.set_msg_handler(pmt.intern(\"tick\"), self._on_tick)\n\
-      \n        # NEW: follow TX\n        self.message_port_register_in(pmt.intern(\"\
-      tx_freq\"))\n        self.set_msg_handler(pmt.intern(\"tx_freq\"), self._on_tx_freq)\n\
-      \n        self.rng = random.Random(int(seed))\n        self.chan = 0\n     \
-      \   self.chan_spacing = float(chan_spacing)\n        self.mute_time_s = float(mute_time_s)\n\
-      \        self.follow_only = bool(follow_only)\n\n        self.active = True\n\
-      \        self._have_tx = False\n\n    def set_active(self, active: bool):\n\
-      \        self.active = bool(active)\n\n    def _pub_freq(self, freq_hz: float):\n\
-      \        msg = pmt.cons(pmt.intern(\"freq\"), pmt.from_double(float(freq_hz)))\n\
-      \        self.message_port_pub(pmt.intern(\"freq\"), msg)\n\n    def _pub_mute(self,\
-      \ state: bool):\n        self.message_port_pub(pmt.intern(\"set_mute\"), pmt.to_pmt(bool(state)))\n\
-      \n    def _retune_with_mute(self, freq_hz: float):\n        # Mute \u2192 retune\
-      \ \u2192 unmute\n        self._pub_mute(True)\n        self._pub_freq(freq_hz)\n\
-      \        threading.Timer(self.mute_time_s, lambda: self._pub_mute(False)).start()\n\
-      \n    def _on_tx_freq(self, msg):\n        \"\"\"\n        Expect a PMT pair\
-      \ like: ( \"freq\" . <double> )\n        from the TX controller. RX uses the\
-      \ opposite sign.\n        \"\"\"\n        if not self.active:\n            self._pub_mute(True)\n\
-      \            self._pub_freq(0.0)\n            return\n\n        try:\n     \
-      \       # Accept either a pair (\"freq\" . value) or a dict {\"freq\": value}\n\
-      \            tx_f = None\n\n            if pmt.is_pair(msg):\n             \
-      \   key = pmt.car(msg)\n                val = pmt.cdr(msg)\n               \
-      \ if pmt.is_symbol(key) and pmt.symbol_to_string(key) == \"freq\":\n       \
-      \             tx_f = float(pmt.to_double(val))\n\n            elif pmt.is_dict(msg):\n\
-      \                v = pmt.dict_ref(msg, pmt.intern(\"freq\"), pmt.PMT_NIL)\n\
-      \                if v is not pmt.PMT_NIL:\n                    tx_f = float(pmt.to_double(v))\n\
-      \n            if tx_f is None:\n                return\n\n            self._have_tx\
-      \ = True\n\n            # TX shifts UP (+). RX must shift DOWN (-TX) to follow.\n\
-      \            rx_f = -tx_f\n            self._retune_with_mute(rx_f)\n\n    \
-      \    except Exception:\n            # Don't crash the flowgraph on bad messages\n\
-      \            return\n\n    def _on_tick(self, msg):\n        \"\"\"\n      \
-      \  Optional fallback: if you aren't wired to TX messages, or you want RX\n \
-      \       to free-run until it hears TX, it can hop using the same RNG.\n    \
-      \    \"\"\"\n        if not self.active:\n            self._pub_mute(True)\n\
-      \            self._pub_freq(0.0)\n            return\n\n        if self.follow_only\
-      \ and self._have_tx:\n            # Once we're following TX, ignore ticks.\n\
-      \            return\n\n        # Fallback hop (same sequence as TX if ticks\
-      \ are aligned)\n        self.chan = (self.chan + self.rng.randint(1, 7)) % 8\n\
-      \        freq = -self.chan * self.chan_spacing  # RX shifts DOWN\n        self._retune_with_mute(freq)\n"
-    affinity: ''
-    alias: ''
-    chan_spacing: 200e3
-    comment: ''
-    follow_only: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    mute_time_s: 10e-3
-    seed: '1'
-  states:
-    _io_cache: '(''FHSS RX controller (follows TX)'', ''blk'', [(''seed'', ''12345''),
-      (''chan_spacing'', ''200000.0''), (''mute_time_s'', ''0.02''), (''follow_only'',
-      ''True'')], [(''tick'', ''message'', 1), (''tx_freq'', ''message'', 1)], [(''set_mute'',
-      ''message'', 1), (''freq'', ''message'', 1)], ''\n    FHSS RX controller that
-      follows the transmitter\''s hopping decisions.\n\n    Inputs (message ports):\n      -
-      "tick":     fallback hop trigger (optional; can be disconnected)\n      - "tx_freq":  PMT
-      pair ("freq", <double Hz>) from the TX controller\n\n    Outputs (message ports):\n      -
-      "freq":      PMT pair ("freq", <double Hz>) to RX Freq Xlating FIR "freq"\n      -
-      "set_mute":  PMT bool to Mute block "set_mute"\n\n    Behavior:\n      - When
-      a tx_freq arrives, RX mutes, tunes to the *negative* of TX shift,\n        then
-      unmutes after mute_time_s.\n      - If no tx_freq has been seen yet, it can
-      optionally hop using the RNG\n        on ticks (set follow_only=True to disable
-      fallback).\n    '', [''chan_spacing'', ''follow_only'', ''mute_time_s''])'
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [496, 752.0]
+    coordinate: [1104, 352.0]
     rotation: 0
     state: enabled
 - name: epy_block_1_0
   id: epy_block
   parameters:
-    _source_code: "import pmt\nimport random\nimport threading\nimport math\nfrom\
-      \ gnuradio import gr\n\nclass blk(gr.basic_block):\n    def __init__(\n    \
-      \    self,\n        seed=12345,\n        chan_spacing=200e3,\n        chan_bw_hz=60e3,\n\
-      \        mute_time_s=0.02,\n        guard_hz=2e3,\n        num_chans=8,\n  \
-      \      max_attempts=64\n    ):\n        gr.basic_block.__init__(self, name='FHSS\
-      \ TX controller (jammer-aware overlap)', in_sig=None, out_sig=None)\n\n    \
-      \    # OUT ports\n        self.message_port_register_out(pmt.intern(\"freq\"\
-      ))\n        self.message_port_register_out(pmt.intern(\"set_mute\"))\n\n   \
-      \     # IN ports\n        self.message_port_register_in(pmt.intern(\"tick\"\
-      ))\n        self.set_msg_handler(pmt.intern(\"tick\"), self._on_tick)\n\n  \
-      \      self.message_port_register_in(pmt.intern(\"edges\"))\n        self.set_msg_handler(pmt.intern(\"\
-      edges\"), self._on_edges)\n\n        # state\n        self.rng = random.Random(int(seed))\n\
-      \        self.chan = 0\n        self.chan_spacing = float(chan_spacing)\n  \
-      \      self.chan_bw_hz = float(chan_bw_hz)\n        self.mute_time_s = float(mute_time_s)\n\
+    _source_code: "import pmt\nimport random\nimport threading\nfrom gnuradio import\
+      \ gr\n\n\nclass blk(gr.basic_block):\n    def __init__(\n        self,\n   \
+      \     seed=12345,\n        chan_spacing=200e3,\n        chan_bw_hz=60e3,\n \
+      \       mute_time_s=0.0,          # legacy hard-mute window if you still want\
+      \ it\n        guard_hz=2e3,\n        num_chans=25,\n        max_attempts=128,\n\
+      \        follow_rx=True,\n        active=True,\n\n        # fade / hop timing\n\
+      \        fade_down_s=0.002,\n        hop_settle_s=0.001,\n        fade_up_s=0.002,\n\
+      \n        # gain values used by callbacks\n        tx_gain_on=1.0,\n       \
+      \ tx_gain_off=0.0,\n        rx_gain_on=1.0,\n        rx_gain_off=0.0,\n    ):\n\
+      \        gr.basic_block.__init__(\n            self,\n            name=\"FHSS\
+      \ fixed-center FIR controller with fade timing\",\n            in_sig=None,\n\
+      \            out_sig=None\n        )\n\n        # -----------------------------\n\
+      \        # Message ports\n        # -----------------------------\n        self.message_port_register_out(pmt.intern(\"\
+      tx_freq\"))\n        self.message_port_register_out(pmt.intern(\"rx_freq\"))\n\
+      \        self.message_port_register_out(pmt.intern(\"set_mute\"))\n        self.message_port_register_out(pmt.intern(\"\
+      hop_info\"))\n\n        self.message_port_register_in(pmt.intern(\"tick\"))\n\
+      \        self.set_msg_handler(pmt.intern(\"tick\"), self._on_tick)\n\n     \
+      \   self.message_port_register_in(pmt.intern(\"edges\"))\n        self.set_msg_handler(pmt.intern(\"\
+      edges\"), self._on_edges)\n\n        # -----------------------------\n     \
+      \   # Parameters / state\n        # -----------------------------\n        self.rng\
+      \ = random.Random(int(seed))\n\n        self.chan_spacing = float(chan_spacing)\n\
+      \        self.chan_bw_hz = float(chan_bw_hz)\n        self.mute_time_s = float(mute_time_s)\n\
       \        self.guard_hz = float(guard_hz)\n        self.num_chans = int(num_chans)\n\
-      \        self.max_attempts = int(max_attempts)\n\n        self.jam_lo = None\n\
-      \        self.jam_hi = None\n        self.active = True\n\n    # -------- publishing\
-      \ helpers --------\n    def set_active(self, active):\n        self.active =\
-      \ bool(active)\n\n    def _pub_freq(self, freq_hz):\n        msg = pmt.cons(pmt.intern(\"\
-      freq\"), pmt.from_double(float(freq_hz)))\n        self.message_port_pub(pmt.intern(\"\
-      freq\"), msg)\n\n    def _pub_mute(self, state):\n        self.message_port_pub(pmt.intern(\"\
-      set_mute\"), pmt.to_pmt(bool(state)))\n\n    def _retune_with_mute(self, freq_hz):\n\
-      \        self._pub_mute(True)\n        self._pub_freq(freq_hz)\n        threading.Timer(self.mute_time_s,\
-      \ lambda: self._pub_mute(False)).start()\n\n    # -------- jammer logic (overlap-based)\
-      \ --------\n    def _is_no_jammer(self):\n        return (\n            self.jam_lo\
-      \ is None or self.jam_hi is None or\n            (self.jam_lo == 0.0 and self.jam_hi\
-      \ == 0.0)\n        )\n\n    def _overlap(self, a_lo, a_hi, b_lo, b_hi):\n  \
-      \      return (a_lo <= b_hi) and (b_lo <= a_hi)\n\n    def _hop_band(self, f_center):\n\
-      \        half = 0.5 * self.chan_bw_hz\n        return (f_center - half - self.guard_hz,\
-      \ f_center + half + self.guard_hz)\n\n    def _hop_overlaps_jam(self, f_center):\n\
-      \        if self._is_no_jammer():\n            return False\n        c_lo, c_hi\
-      \ = self._hop_band(f_center)\n        return self._overlap(c_lo, c_hi, self.jam_lo,\
-      \ self.jam_hi)\n\n    # -------- hop grid --------\n    def _grid_freq(self,\
-      \ chan):\n        return float(chan) * self.chan_spacing\n\n    def _pick_next_chan(self):\n\
+      \        self.max_attempts = int(max_attempts)\n        self.follow_rx = bool(follow_rx)\n\
+      \        self.active = bool(active)\n\n        self.fade_down_s = float(fade_down_s)\n\
+      \        self.hop_settle_s = float(hop_settle_s)\n        self.fade_up_s = float(fade_up_s)\n\
+      \n        self.tx_gain_on = float(tx_gain_on)\n        self.tx_gain_off = float(tx_gain_off)\n\
+      \        self.rx_gain_on = float(rx_gain_on)\n        self.rx_gain_off = float(rx_gain_off)\n\
+      \n        if self.num_chans <= 1:\n            raise ValueError(\"num_chans\
+      \ must be >= 2\")\n        if self.num_chans % 2 == 0:\n            raise ValueError(\"\
+      num_chans should be odd so one channel is exactly at offset 0 Hz\")\n\n    \
+      \    self.mid_chan = self.num_chans // 2\n        self.chan = self.mid_chan\n\
+      \n        self.jam_lo = None\n        self.jam_hi = None\n\n        self._hop_lock\
+      \ = threading.Lock()\n\n        # Optional external callbacks\n        self._tx_gain_fn\
+      \ = None\n        self._rx_gain_fn = None\n\n    # -----------------------------\n\
+      \    # External control\n    # -----------------------------\n    def set_follow_rx(self,\
+      \ follow_rx):\n        self.follow_rx = bool(follow_rx)\n\n    def set_active(self,\
+      \ active):\n        self.active = bool(active)\n\n    def set_tx_gain_fn(self,\
+      \ fn):\n        \"\"\"Example: lambda g: self.blocks_multiply_const_vxx_0.set_k(g)\"\
+      \"\"\n        self._tx_gain_fn = fn\n\n    def set_rx_gain_fn(self, fn):\n \
+      \       \"\"\"Example: lambda g: self.rx_audio_gain_block.set_k(g)\"\"\"\n \
+      \       self._rx_gain_fn = fn\n\n    # -----------------------------\n    #\
+      \ Publishers\n    # -----------------------------\n    def _pub_mute(self, state):\n\
+      \        self.message_port_pub(pmt.intern(\"set_mute\"), pmt.to_pmt(bool(state)))\n\
+      \n    def _pub_tx_freq(self, offset_hz):\n        msg = pmt.cons(pmt.intern(\"\
+      freq\"), pmt.from_double(float(offset_hz)))\n        self.message_port_pub(pmt.intern(\"\
+      tx_freq\"), msg)\n\n    def _pub_rx_freq(self, offset_hz):\n        msg = pmt.cons(pmt.intern(\"\
+      freq\"), pmt.from_double(float(offset_hz)))\n        self.message_port_pub(pmt.intern(\"\
+      rx_freq\"), msg)\n\n    def _pub_hop_info(self, chan, offset_hz):\n        d\
+      \ = pmt.make_dict()\n        d = pmt.dict_add(d, pmt.intern(\"chan\"), pmt.from_long(int(chan)))\n\
+      \        d = pmt.dict_add(d, pmt.intern(\"offset_hz\"), pmt.from_double(float(offset_hz)))\n\
+      \        self.message_port_pub(pmt.intern(\"hop_info\"), d)\n\n    # -----------------------------\n\
+      \    # Gain helpers\n    # -----------------------------\n    def _set_tx_gain(self,\
+      \ g):\n        if self._tx_gain_fn is not None:\n            self._tx_gain_fn(float(g))\n\
+      \n    def _set_rx_gain(self, g):\n        if self._rx_gain_fn is not None:\n\
+      \            self._rx_gain_fn(float(g))\n\n    def _ramp_gain(self, setter,\
+      \ g0, g1, duration_s, steps=8):\n        \"\"\"\n        Simple timer-based\
+      \ linear ramp.\n        \"\"\"\n        if setter is None or duration_s <= 0\
+      \ or steps <= 1:\n            if setter is not None:\n                setter(float(g1))\n\
+      \            return\n\n        dt = duration_s / steps\n        for i in range(1,\
+      \ steps + 1):\n            gi = g0 + (g1 - g0) * (i / steps)\n            threading.Timer(dt\
+      \ * i, lambda val=gi: setter(float(val))).start()\n\n    def _fade_down(self):\n\
+      \        if self._tx_gain_fn is not None:\n            self._ramp_gain(self._set_tx_gain,\
+      \ self.tx_gain_on, self.tx_gain_off, self.fade_down_s)\n        if self._rx_gain_fn\
+      \ is not None:\n            self._ramp_gain(self._set_rx_gain, self.rx_gain_on,\
+      \ self.rx_gain_off, self.fade_down_s)\n\n    def _fade_up(self):\n        if\
+      \ self._tx_gain_fn is not None:\n            self._ramp_gain(self._set_tx_gain,\
+      \ self.tx_gain_off, self.tx_gain_on, self.fade_up_s)\n        if self._rx_gain_fn\
+      \ is not None:\n            self._ramp_gain(self._set_rx_gain, self.rx_gain_off,\
+      \ self.rx_gain_on, self.fade_up_s)\n\n    # -----------------------------\n\
+      \    # Apply hop sequence\n    # -----------------------------\n    def _apply_hop(self,\
+      \ offset_hz):\n        self._pub_tx_freq(offset_hz)\n        if self.follow_rx:\n\
+      \            self._pub_rx_freq(offset_hz)\n        self._pub_hop_info(self.chan,\
+      \ offset_hz)\n\n    def _apply_hop_with_fade(self, offset_hz):\n        with\
+      \ self._hop_lock:\n            # legacy hard mute signal if you're still wiring\
+      \ it somewhere\n            self._pub_mute(True)\n\n            # 1) fade down\n\
+      \            self._fade_down()\n\n            # 2) schedule actual hop after\
+      \ fade-down\n            hop_delay = max(0.0, self.fade_down_s)\n\n        \
+      \    def do_hop():\n                self._apply_hop(offset_hz)\n\n         \
+      \   threading.Timer(hop_delay, do_hop).start()\n\n            # 3) fade back\
+      \ up after hop settle\n            up_delay = hop_delay + max(0.0, self.hop_settle_s)\n\
+      \n            def do_fade_up():\n                self._fade_up()\n         \
+      \       # optional hard unmute release after fade-up begins\n              \
+      \  release_delay = max(self.fade_up_s, self.mute_time_s)\n                threading.Timer(release_delay,\
+      \ lambda: self._pub_mute(False)).start()\n\n            threading.Timer(up_delay,\
+      \ do_fade_up).start()\n\n    # -----------------------------\n    # Jammer helpers\n\
+      \    # Jammer edges are baseband offsets from fixed center\n    # -----------------------------\n\
+      \    def _is_no_jammer(self):\n        return (\n            self.jam_lo is\
+      \ None or self.jam_hi is None or\n            (self.jam_lo == 0.0 and self.jam_hi\
+      \ == 0.0)\n        )\n\n    @staticmethod\n    def _overlap(a_lo, a_hi, b_lo,\
+      \ b_hi):\n        return (a_lo <= b_hi) and (b_lo <= a_hi)\n\n    def _hop_band(self,\
+      \ offset_hz):\n        half = 0.5 * self.chan_bw_hz\n        return (\n    \
+      \        offset_hz - half - self.guard_hz,\n            offset_hz + half + self.guard_hz\n\
+      \        )\n\n    def _hop_overlaps_jam(self, offset_hz):\n        if self._is_no_jammer():\n\
+      \            return False\n        c_lo, c_hi = self._hop_band(offset_hz)\n\
+      \        return self._overlap(c_lo, c_hi, self.jam_lo, self.jam_hi)\n\n    #\
+      \ -----------------------------\n    # Channel grid\n    # -----------------------------\n\
+      \    def _grid_offset(self, chan):\n        offset_index = int(chan) - self.mid_chan\n\
+      \        return offset_index * self.chan_spacing\n\n    def _pick_next_chan(self):\n\
       \        step = self.rng.randint(1, self.num_chans - 1)\n        return (self.chan\
-      \ + step) % self.num_chans\n\n    def _move_center_to_clear_jam(self, f_center):\n\
-      \        if not self._hop_overlaps_jam(f_center):\n            return f_center\n\
-      \n        half = 0.5 * self.chan_bw_hz\n        need_below = self.jam_lo - self.guard_hz\
-      \ - half\n        need_above = self.jam_hi + self.guard_hz + half\n\n      \
-      \  if abs(f_center - need_below) <= abs(need_above - f_center):\n          \
-      \  target = need_below\n            snapped = math.floor(target / self.chan_spacing)\
-      \ * self.chan_spacing\n        else:\n            target = need_above\n    \
-      \        snapped = math.ceil(target / self.chan_spacing) * self.chan_spacing\n\
-      \n        return float(snapped)\n\n    def _fallback_safe_freq(self):\n    \
-      \    for c in range(self.num_chans):\n            f = self._grid_freq(c)\n \
-      \           if not self._hop_overlaps_jam(f):\n                return f\n  \
-      \      return 0.0\n\n    # -------- message handlers --------\n    def _on_edges(self,\
+      \ + step) % self.num_chans\n\n    def _nearest_valid_chan_for_offset(self, offset_hz):\n\
+      \        idx = round(offset_hz / self.chan_spacing) + self.mid_chan\n      \
+      \  idx = max(0, min(self.num_chans - 1, idx))\n        return idx\n\n    def\
+      \ _move_offset_to_clear_jam(self, offset_hz):\n        if not self._hop_overlaps_jam(offset_hz):\n\
+      \            return offset_hz\n\n        half = 0.5 * self.chan_bw_hz\n    \
+      \    need_below = self.jam_lo - self.guard_hz - half\n        need_above = self.jam_hi\
+      \ + self.guard_hz + half\n\n        if abs(offset_hz - need_below) <= abs(need_above\
+      \ - offset_hz):\n            chan = self._nearest_valid_chan_for_offset(need_below)\n\
+      \        else:\n            chan = self._nearest_valid_chan_for_offset(need_above)\n\
+      \n        return self._grid_offset(chan)\n\n    def _fallback_safe_offset(self):\n\
+      \        for c in range(self.num_chans):\n            off = self._grid_offset(c)\n\
+      \            if not self._hop_overlaps_jam(off):\n                return off\n\
+      \        return self._grid_offset(self.mid_chan)\n\n    # -----------------------------\n\
+      \    # Message handlers\n    # -----------------------------\n    def _on_edges(self,\
       \ msg):\n        try:\n            if not pmt.is_dict(msg):\n              \
       \  return\n\n            lo_p = pmt.dict_ref(msg, pmt.intern(\"f_lo_hz\"), pmt.PMT_NIL)\n\
       \            hi_p = pmt.dict_ref(msg, pmt.intern(\"f_hi_hz\"), pmt.PMT_NIL)\n\
@@ -715,36 +663,51 @@ blocks:
       \            if hi < lo:\n                lo, hi = hi, lo\n\n            self.jam_lo\
       \ = lo\n            self.jam_hi = hi\n        except Exception:\n          \
       \  return\n\n    def _on_tick(self, msg):\n        if not self.active:\n   \
-      \         self._pub_mute(True)\n            self._pub_freq(0.0)\n          \
-      \  return\n\n        chosen = None\n        attempts = 0\n\n        while attempts\
-      \ < self.max_attempts:\n            self.chan = self._pick_next_chan()\n   \
-      \         f = self._grid_freq(self.chan)\n\n            f2 = self._move_center_to_clear_jam(f)\n\
-      \n            if not self._hop_overlaps_jam(f2):\n                chosen = f2\n\
-      \                break\n\n            attempts += 1\n\n        if chosen is\
-      \ None:\n            chosen = self._fallback_safe_freq()\n\n        self._retune_with_mute(chosen)\n"
+      \         self._pub_mute(True)\n            return\n\n        chosen = None\n\
+      \        attempts = 0\n\n        while attempts < self.max_attempts:\n     \
+      \       next_chan = self._pick_next_chan()\n            off = self._grid_offset(next_chan)\n\
+      \n            off2 = self._move_offset_to_clear_jam(off)\n\n            if not\
+      \ self._hop_overlaps_jam(off2):\n                chosen = off2\n           \
+      \     self.chan = self._nearest_valid_chan_for_offset(off2)\n              \
+      \  break\n\n            attempts += 1\n\n        if chosen is None:\n      \
+      \      chosen = self._fallback_safe_offset()\n            self.chan = self._nearest_valid_chan_for_offset(chosen)\n\
+      \n        self._apply_hop_with_fade(chosen)"
+    active: 'True'
     affinity: ''
     alias: ''
     chan_bw_hz: 60e3
-    chan_spacing: 200e3
+    chan_spacing: 100e3
     comment: ''
+    fade_down_s: '0.001'
+    fade_up_s: '0.03'
+    follow_rx: 'True'
     guard_hz: '1000'
-    max_attempts: '100'
+    hop_settle_s: '0.002'
+    max_attempts: '128'
     maxoutbuf: '0'
     minoutbuf: '0'
     mute_time_s: 1e-2
-    num_chans: '10'
+    num_chans: '25'
+    rx_gain_off: '0.1'
+    rx_gain_on: '1'
     seed: '1'
+    tx_gain_off: '0.1'
+    tx_gain_on: '1'
   states:
-    _io_cache: ('FHSS TX controller (jammer-aware overlap)', 'blk', [('seed', '12345'),
-      ('chan_spacing', '200000.0'), ('chan_bw_hz', '60000.0'), ('mute_time_s', '0.02'),
-      ('guard_hz', '2000.0'), ('num_chans', '8'), ('max_attempts', '64')], [('tick',
-      'message', 1), ('edges', 'message', 1)], [('set_mute', 'message', 1), ('freq',
-      'message', 1)], '', ['chan_bw_hz', 'chan_spacing', 'guard_hz', 'max_attempts',
-      'mute_time_s', 'num_chans'])
+    _io_cache: ('FHSS fixed-center FIR controller with fade timing', 'blk', [('seed',
+      '12345'), ('chan_spacing', '200000.0'), ('chan_bw_hz', '60000.0'), ('mute_time_s',
+      '0.0'), ('guard_hz', '2000.0'), ('num_chans', '25'), ('max_attempts', '128'),
+      ('follow_rx', 'True'), ('active', 'True'), ('fade_down_s', '0.002'), ('hop_settle_s',
+      '0.001'), ('fade_up_s', '0.002'), ('tx_gain_on', '1.0'), ('tx_gain_off', '0.0'),
+      ('rx_gain_on', '1.0'), ('rx_gain_off', '0.0')], [('tick', 'message', 1), ('edges',
+      'message', 1)], [('hop_info', 'message', 1), ('set_mute', 'message', 1), ('rx_freq',
+      'message', 1), ('tx_freq', 'message', 1)], '', ['active', 'chan_bw_hz', 'chan_spacing',
+      'fade_down_s', 'fade_up_s', 'follow_rx', 'guard_hz', 'hop_settle_s', 'max_attempts',
+      'mute_time_s', 'num_chans', 'rx_gain_off', 'rx_gain_on', 'tx_gain_off', 'tx_gain_on'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 548.0]
+    coordinate: [416, 536.0]
     rotation: 0
     state: enabled
 - name: epy_block_2
@@ -843,7 +806,7 @@ blocks:
     bus_structure: null
     coordinate: [1240, 1188.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: fft_vxx_0
   id: fft_vxx
   parameters:
@@ -883,9 +846,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 1216.0]
+    coordinate: [432, 1216.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: filter_fft_low_pass_filter_0
   id: filter_fft_low_pass_filter
   parameters:
@@ -910,30 +873,30 @@ blocks:
     coordinate: [488, 28.0]
     rotation: 0
     state: enabled
-- name: filter_fft_low_pass_filter_0_0
+- name: filter_fft_low_pass_filter_1
   id: filter_fft_low_pass_filter
   parameters:
     affinity: ''
     alias: ''
     beta: '6.76'
     comment: ''
-    cutoff_freq: 15e3
+    cutoff_freq: 20e3
     decim: '1'
     gain: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     nthreads: '1'
-    samp_rate: samp_rate
-    type: ccc
-    width: 3e3
+    samp_rate: '48000'
+    type: fff
+    width: 1e3
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1096, 764.0]
+    coordinate: [1656, 932.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: freq_xlating_fir_filter_xxx_0
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -941,7 +904,7 @@ blocks:
     alias: ''
     center_freq: '0'
     comment: ''
-    decim: '1'
+    decim: '10'
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
@@ -951,9 +914,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [792, 832.0]
+    coordinate: [736, 864.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: freq_xlating_fir_filter_xxx_1
   id: freq_xlating_fir_filter_xxx
   parameters:
@@ -966,12 +929,12 @@ blocks:
     minoutbuf: '0'
     samp_rate: samp_rate
     taps: '1'
-    type: ccc
+    type: ccf
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 592.0]
+    coordinate: [1320, 560.0]
     rotation: 0
     state: true
 - name: freq_xlating_fir_filter_xxx_2
@@ -1007,6 +970,100 @@ blocks:
     coordinate: [280, 12.0]
     rotation: 0
     state: true
+- name: limesdr_sink_0
+  id: limesdr_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    allow_tcxo_dac: '0'
+    analog_bandw_ch0: 5e6
+    analog_bandw_ch1: 5e6
+    calibr_bandw_ch0: 2.5e6
+    calibr_bandw_ch1: 2.5e6
+    channel_mode: '0'
+    comment: ''
+    dacVal: '180'
+    digital_bandw_ch0: samp_rate
+    digital_bandw_ch1: samp_rate
+    filename: ''
+    gain_dB_ch0: '30'
+    gain_dB_ch1: '1'
+    length_tag_name: ''
+    nco_freq_ch0: '0'
+    nco_freq_ch1: '0'
+    oversample: '0'
+    pa_path_ch0: '255'
+    pa_path_ch1: '255'
+    rf_freq: 914e6
+    samp_rate: samp_rate
+    serial: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1816, 592.0]
+    rotation: 0
+    state: enabled
+- name: limesdr_source_0
+  id: limesdr_source
+  parameters:
+    affinity: ''
+    alias: ''
+    allow_tcxo_dac: '0'
+    analog_bandw_ch0: 2.5e6
+    analog_bandw_ch1: 1.5e6
+    calibr_bandw_ch0: 2.5e6
+    calibr_bandw_ch1: 2.5e6
+    ch_align: 'False'
+    channel_mode: '0'
+    comment: ''
+    dacVal: '180'
+    digital_bandw_ch0: 2.5e6
+    digital_bandw_ch1: samp_rate
+    filename: ''
+    gain_dB_ch0: '30'
+    gain_dB_ch1: '1'
+    lna_path_ch0: '2'
+    lna_path_ch1: '2'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nco_freq_ch0: '0'
+    nco_freq_ch1: '0'
+    oversample: '0'
+    rf_freq: 914e6
+    samp_rate: samp_rate
+    serial: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 848.0]
+    rotation: 0
+    state: disabled
+- name: low_pass_filter_0
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: 4e3
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: '48000'
+    type: interp_fir_filter_fff
+    width: 1e3
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [344, 340.0]
+    rotation: 0
+    state: enabled
 - name: note_0
   id: note
   parameters:
@@ -1100,7 +1157,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2344, 816.0]
+    coordinate: [1888, 872.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0
@@ -1161,7 +1218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1424, 592.0]
+    coordinate: [1560, 688.0]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_0_0
@@ -1193,7 +1250,7 @@ blocks:
     color9: '0'
     comment: ''
     fc: '0'
-    fftsize: '1024'
+    fftsize: '2048'
     freqhalf: 'True'
     grid: 'False'
     gui_hint: tab@0
@@ -1344,7 +1401,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1816, 736.0]
+    coordinate: [1232, 760.0]
     rotation: 0
     state: true
 - name: qtgui_waterfall_sink_x_1_0
@@ -1405,27 +1462,85 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 1016.0]
+    coordinate: [896, 1152.0]
     rotation: 0
     state: true
-- name: rational_resampler_xxx_0
-  id: rational_resampler_xxx
+- name: qtgui_waterfall_sink_x_2
+  id: qtgui_waterfall_sink_x
   parameters:
     affinity: ''
     alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '0'
+    color10: '0'
+    color2: '0'
+    color3: '0'
+    color4: '0'
+    color5: '0'
+    color6: '0'
+    color7: '0'
+    color8: '0'
+    color9: '0'
     comment: ''
-    decim: '1'
-    fbw: '0'
-    interp: '100'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'False'
+    gui_hint: tab@1
+    int_max: '10'
+    int_min: '-140'
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    taps: '[]'
-    type: fff
+    name: RX Before FIR
+    nconnections: '1'
+    showports: 'False'
+    type: complex
+    update_time: '0.10'
+    wintype: window.WIN_BLACKMAN_hARRIS
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [528, 424.0]
+    coordinate: [440, 1104.0]
+    rotation: 0
+    state: enabled
+- name: snippet_0
+  id: snippet
+  parameters:
+    alias: ''
+    code: "self.epy_block_1_0.set_tx_gain_fn(\n        lambda g: self.blocks_multiply_const_vxx_1.set_k(g)\n\
+      \    )\n\nself.epy_block_1_0.set_rx_gain_fn(\n        lambda g: self.blocks_multiply_const_vxx_0.set_k(g)\n\
+      \    )"
+    comment: ''
+    priority: '0'
+    section: main_after_init
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1168, 256.0]
     rotation: 0
     state: enabled
 - name: tab
@@ -1467,14 +1582,14 @@ blocks:
   parameters:
     alias: ''
     comment: ''
-    stream_id: rx_antenna
+    stream_id: test_tx
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1880, 608.0]
+    coordinate: [1976, 696.0]
     rotation: 0
-    state: true
+    state: enabled
 - name: virtual_sink_1
   id: virtual_sink
   parameters:
@@ -1493,27 +1608,14 @@ blocks:
   parameters:
     alias: ''
     comment: ''
-    stream_id: rx_antenna
+    stream_id: test_tx
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [360, 968.0]
+    coordinate: [64, 976.0]
     rotation: 0
-    state: true
-- name: virtual_source_0_0
-  id: virtual_source
-  parameters:
-    alias: ''
-    comment: ''
-    stream_id: rx_antenna1
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [360, 896.0]
-    rotation: 0
-    state: true
+    state: enabled
 - name: virtual_source_0_0_0
   id: virtual_source
   parameters:
@@ -1527,65 +1629,49 @@ blocks:
     coordinate: [0, 168.0]
     rotation: 0
     state: true
-- name: virtual_source_0_1
-  id: virtual_source
-  parameters:
-    alias: ''
-    comment: ''
-    stream_id: rx_antenna
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [24, 1160.0]
-    rotation: 0
-    state: true
 
 connections:
-- [analog_agc_xx_0, '0', audio_sink_0, '0']
-- [analog_agc_xx_0, '0', qtgui_freq_sink_x_0, '0']
-- [analog_frequency_modulator_fc_0, '0', freq_xlating_fir_filter_xxx_1, '0']
-- [analog_nbfm_rx_0, '0', analog_agc_xx_0, '0']
+- [analog_nbfm_rx_0, '0', blocks_multiply_const_vxx_0, '0']
+- [analog_nbfm_tx_0, '0', blocks_multiply_const_vxx_1, '0']
 - [analog_noise_source_x_0, '0', filter_fft_low_pass_filter_0, '0']
-- [blocks_add_xx_0, '0', freq_xlating_fir_filter_xxx_0, '0']
 - [blocks_complex_to_mag_squared_0, '0', epy_block_0, '0']
 - [blocks_complex_to_mag_squared_0_0, '0', epy_block_2, '0']
-- [blocks_message_strobe_0, strobe, epy_block_1, tick]
-- [blocks_message_strobe_0, strobe, epy_block_1_0, tick]
-- [blocks_multiply_const_vxx_0, '0', blocks_throttle2_0, '0']
-- [blocks_multiply_const_vxx_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [blocks_mute_xx_0, '0', blocks_throttle2_1, '0']
+- [blocks_multiply_const_vxx_0, '0', filter_fft_low_pass_filter_1, '0']
+- [blocks_multiply_const_vxx_1, '0', freq_xlating_fir_filter_xxx_1, '0']
 - [blocks_stream_to_vector_0, '0', fft_vxx_0, '0']
 - [blocks_stream_to_vector_0_0, '0', fft_vxx_0_0, '0']
-- [blocks_throttle2_0, '0', qtgui_waterfall_sink_x_0_0, '0']
 - [blocks_throttle2_0, '0', virtual_sink_0, '0']
 - [blocks_throttle2_0_0, '0', qtgui_waterfall_sink_x_0_0_0, '0']
 - [blocks_throttle2_0_0, '0', virtual_sink_1, '0']
 - [blocks_throttle2_0_0_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [blocks_throttle2_0_0_0_0, '0', blocks_complex_to_mag_squared_0_0, '0']
-- [blocks_throttle2_1, '0', analog_nbfm_rx_0, '0']
-- [blocks_throttle2_1, '0', qtgui_waterfall_sink_x_1, '0']
+- [blocks_throttle2_1, '0', freq_xlating_fir_filter_xxx_0, '0']
+- [blocks_throttle2_1, '0', qtgui_waterfall_sink_x_1_0, '0']
+- [blocks_throttle2_1, '0', qtgui_waterfall_sink_x_2, '0']
 - [blocks_var_to_msg_0, msgout, freq_xlating_fir_filter_xxx_2, freq]
-- [blocks_wavfile_source_0, '0', rational_resampler_xxx_0, '0']
-- [epy_block_0, edges, blocks_message_debug_0, print]
+- [blocks_wavfile_source_0, '0', low_pass_filter_0, '0']
 - [epy_block_0, edges, epy_block_1_0, edges]
-- [epy_block_1, freq, freq_xlating_fir_filter_xxx_0, freq]
-- [epy_block_1, set_mute, blocks_mute_xx_0, set_mute]
-- [epy_block_1_0, freq, epy_block_1, tx_freq]
-- [epy_block_1_0, freq, freq_xlating_fir_filter_xxx_1, freq]
+- [epy_block_1_0, rx_freq, freq_xlating_fir_filter_xxx_0, freq]
+- [epy_block_1_0, tx_freq, freq_xlating_fir_filter_xxx_1, freq]
 - [fft_vxx_0, '0', blocks_throttle2_0_0_0, '0']
 - [fft_vxx_0_0, '0', blocks_throttle2_0_0_0_0, '0']
 - [filter_fft_low_pass_filter_0, '0', freq_xlating_fir_filter_xxx_2, '0']
-- [filter_fft_low_pass_filter_0_0, '0', blocks_mute_xx_0, '0']
-- [freq_xlating_fir_filter_xxx_0, '0', filter_fft_low_pass_filter_0_0, '0']
-- [freq_xlating_fir_filter_xxx_0, '0', qtgui_waterfall_sink_x_1_0, '0']
-- [freq_xlating_fir_filter_xxx_1, '0', blocks_multiply_const_vxx_0, '0']
+- [filter_fft_low_pass_filter_1, '0', audio_sink_0, '0']
+- [filter_fft_low_pass_filter_1, '0', qtgui_freq_sink_x_0, '0']
+- [freq_xlating_fir_filter_xxx_0, '0', analog_nbfm_rx_0, '0']
+- [freq_xlating_fir_filter_xxx_0, '0', qtgui_waterfall_sink_x_1, '0']
+- [freq_xlating_fir_filter_xxx_1, '0', blocks_throttle2_0, '0']
+- [freq_xlating_fir_filter_xxx_1, '0', limesdr_sink_0, '0']
+- [freq_xlating_fir_filter_xxx_1, '0', qtgui_waterfall_sink_x_0, '0']
+- [freq_xlating_fir_filter_xxx_1, '0', qtgui_waterfall_sink_x_0_0, '0']
 - [freq_xlating_fir_filter_xxx_2, '0', blocks_throttle2_0_0, '0']
-- [rational_resampler_xxx_0, '0', analog_frequency_modulator_fc_0, '0']
-- [virtual_source_0, '0', blocks_add_xx_0, '1']
-- [virtual_source_0_0, '0', blocks_add_xx_0, '0']
+- [limesdr_source_0, '0', blocks_stream_to_vector_0_0, '0']
+- [limesdr_source_0, '0', freq_xlating_fir_filter_xxx_0, '0']
+- [limesdr_source_0, '0', qtgui_waterfall_sink_x_1_0, '0']
+- [limesdr_source_0, '0', qtgui_waterfall_sink_x_2, '0']
+- [low_pass_filter_0, '0', analog_nbfm_tx_0, '0']
+- [virtual_source_0, '0', blocks_throttle2_1, '0']
 - [virtual_source_0_0_0, '0', blocks_stream_to_vector_0, '0']
-- [virtual_source_0_1, '0', blocks_stream_to_vector_0_0, '0']
 
 metadata:
   file_format: 1
