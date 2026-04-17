@@ -15,6 +15,7 @@ from gnuradio import analog
 from gnuradio import audio
 from gnuradio import blocks
 import pmt
+from gnuradio import blocks, gr
 from gnuradio import fft
 from gnuradio.fft import window
 from gnuradio import filter
@@ -160,7 +161,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
             self.qtgui_waterfall_sink_x_1_0.set_color_map(i, colors[i])
             self.qtgui_waterfall_sink_x_1_0.set_line_alpha(i, alphas[i])
 
-        self.qtgui_waterfall_sink_x_1_0.set_intensity_range(-140, 10)
+        self.qtgui_waterfall_sink_x_1_0.set_intensity_range(-60, -30)
 
         self._qtgui_waterfall_sink_x_1_0_win = sip.wrapinstance(self.qtgui_waterfall_sink_x_1_0.qwidget(), Qt.QWidget)
 
@@ -359,7 +360,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.limesdr_source_0.set_bandwidth(samp_rate, 0)
 
 
-        self.limesdr_source_0.set_digital_filter(15e3, 0)
+        self.limesdr_source_0.set_digital_filter(2.5e6, 0)
 
 
         self.limesdr_source_0.set_gain(30, 0)
@@ -397,7 +398,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.filter_fft_low_pass_filter_1 = filter.fft_filter_ccc(1, firdes.low_pass(1, samp_rate, 10e3, 2e3, window.WIN_HAMMING, 6.76), 1)
         self.filter_fft_low_pass_filter_0 = filter.fft_filter_ccc(1, firdes.low_pass(1, samp_rate, jamming_range, 100, window.WIN_HAMMING, 6.76), 1)
         self.fft_vxx_0 = fft.fft_vcc(1024, True, window.blackmanharris(1024), True, 1)
-        self.epy_block_1_0 = epy_block_1_0.blk(seed=1, center_freq_hz=914e6, chan_spacing=100e3, chan_bw_hz=60e3, mute_time_s=1e-2, guard_hz=1000, num_chans=25, max_attempts=128, tx_chan=0, follow_rx=True, active=True)
+        self.epy_block_1_0 = epy_block_1_0.blk(seed=1, center_freq_hz=914e6, chan_spacing=100e3, chan_bw_hz=60e3, mute_time_s=1e-2, guard_hz=1000, num_chans=25, tx_chan=0, follow_rx=False, active=True)
         self.epy_block_0 = epy_block_0.blk(samp_rate=4.8e6, nfft=1024, thresh_db=40, publish_every=10000)
         self.blocks_wavfile_source_0 = blocks.wavfile_source('/home/ciaran/Downloads/1-04. Welcome To The World of Pokemon! ~ Route 123.mp3', True)
         self.blocks_var_to_msg_0 = blocks.var_to_msg_pair('freq')
@@ -407,6 +408,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.blocks_stream_to_vector_0 = blocks.stream_to_vector(gr.sizeof_gr_complex*1, 1024)
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_cc(1)
         self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), 100)
+        self.blocks_message_debug_0 = blocks.message_debug(True, gr.log_levels.info)
         self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1024)
         self.audio_sink_0 = audio.sink(48000, '', True)
         self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc((-50), 1)
@@ -425,6 +427,7 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         ##################################################
         self.msg_connect((self.blocks_message_strobe_0, 'strobe'), (self.epy_block_1_0, 'tick'))
         self.msg_connect((self.blocks_var_to_msg_0, 'msgout'), (self.freq_xlating_fir_filter_xxx_2, 'freq'))
+        self.msg_connect((self.epy_block_0, 'edges'), (self.blocks_message_debug_0, 'print'))
         self.msg_connect((self.epy_block_0, 'edges'), (self.epy_block_1_0, 'edges'))
         self.connect((self.analog_frequency_modulator_fc_0, 0), (self.filter_fft_low_pass_filter_3, 0))
         self.connect((self.analog_nbfm_rx_0, 0), (self.filter_fft_low_pass_filter_4, 0))
@@ -444,12 +447,12 @@ class Capstone_2621(gr.top_block, Qt.QWidget):
         self.connect((self.fft_vxx_0, 0), (self.blocks_throttle2_0_0_0, 0))
         self.connect((self.filter_fft_low_pass_filter_0, 0), (self.freq_xlating_fir_filter_xxx_2, 0))
         self.connect((self.filter_fft_low_pass_filter_1, 0), (self.analog_simple_squelch_cc_0, 0))
+        self.connect((self.filter_fft_low_pass_filter_1, 0), (self.qtgui_waterfall_sink_x_1, 0))
         self.connect((self.filter_fft_low_pass_filter_2, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.filter_fft_low_pass_filter_3, 0), (self.filter_fft_low_pass_filter_2, 0))
         self.connect((self.filter_fft_low_pass_filter_4, 0), (self.audio_sink_0, 0))
         self.connect((self.freq_xlating_fir_filter_xxx_2, 0), (self.blocks_throttle2_0_0, 0))
         self.connect((self.limesdr_source_0, 0), (self.filter_fft_low_pass_filter_1, 0))
-        self.connect((self.limesdr_source_0, 0), (self.qtgui_waterfall_sink_x_1, 0))
         self.connect((self.limesdr_source_0, 0), (self.qtgui_waterfall_sink_x_1_0, 0))
         self.connect((self.rational_resampler_xxx_1, 0), (self.analog_frequency_modulator_fc_0, 0))
 

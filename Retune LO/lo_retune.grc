@@ -263,7 +263,7 @@ blocks:
     bus_structure: null
     coordinate: [1520, 296.0]
     rotation: 0
-    state: disabled
+    state: enabled
 - name: blocks_message_strobe_0
   id: blocks_message_strobe
   parameters:
@@ -536,103 +536,93 @@ blocks:
 - name: epy_block_1_0
   id: epy_block
   parameters:
-    _source_code: "import pmt\nimport random\nimport threading\nimport math\nfrom\
-      \ gnuradio import gr\n\n\nclass blk(gr.basic_block):\n    def __init__(\n  \
-      \      self,\n        seed=12345,\n        center_freq_hz=915e6,\n        chan_spacing=200e3,\n\
+    _source_code: "import pmt\nimport random\nimport threading\nfrom gnuradio import\
+      \ gr\n\n\nclass blk(gr.basic_block):\n    def __init__(\n        self,\n   \
+      \     seed=12345,\n        center_freq_hz=915e6,\n        chan_spacing=200e3,\n\
       \        chan_bw_hz=60e3,\n        mute_time_s=0.02,\n        guard_hz=2e3,\n\
-      \        num_chans=25,\n        max_attempts=128,\n        tx_chan=0,\n    \
-      \    follow_rx=False,\n        active=True,\n    ):\n        gr.basic_block.__init__(\n\
-      \            self,\n            name='FHSS hopper (separate TX/RX retune callbacks)',\n\
-      \            in_sig=None,\n            out_sig=None\n        )\n\n        #\
-      \ OUT ports\n        self.message_port_register_out(pmt.intern(\"set_mute\"\
-      ))\n        self.message_port_register_out(pmt.intern(\"rf_freq\"))\n\n    \
-      \    # Optional debug ports\n        self.message_port_register_out(pmt.intern(\"\
-      tx_freq\"))\n        self.message_port_register_out(pmt.intern(\"rx_freq\"))\n\
-      \n        # IN ports\n        self.message_port_register_in(pmt.intern(\"tick\"\
-      ))\n        self.set_msg_handler(pmt.intern(\"tick\"), self._on_tick)\n\n  \
-      \      self.message_port_register_in(pmt.intern(\"edges\"))\n        self.set_msg_handler(pmt.intern(\"\
+      \        num_chans=25,\n        tx_chan=0,\n        follow_rx=False,\n     \
+      \   active=True,\n    ):\n        gr.basic_block.__init__(\n            self,\n\
+      \            name='FHSS hopper (simple jam-aware channel mask)',\n         \
+      \   in_sig=None,\n            out_sig=None\n        )\n\n        # OUT ports\n\
+      \        self.message_port_register_out(pmt.intern(\"set_mute\"))\n        self.message_port_register_out(pmt.intern(\"\
+      rf_freq\"))\n        self.message_port_register_out(pmt.intern(\"tx_freq\"))\n\
+      \        self.message_port_register_out(pmt.intern(\"rx_freq\"))\n\n       \
+      \ # IN ports\n        self.message_port_register_in(pmt.intern(\"tick\"))\n\
+      \        self.set_msg_handler(pmt.intern(\"tick\"), self._on_tick)\n\n     \
+      \   self.message_port_register_in(pmt.intern(\"edges\"))\n        self.set_msg_handler(pmt.intern(\"\
       edges\"), self._on_edges)\n\n        # State\n        self.rng = random.Random(int(seed))\n\
       \n        self.center_freq_hz = float(center_freq_hz)\n        self.chan_spacing\
       \ = float(chan_spacing)\n        self.chan_bw_hz = float(chan_bw_hz)\n     \
       \   self.mute_time_s = float(mute_time_s)\n        self.guard_hz = float(guard_hz)\n\
-      \        self.num_chans = int(num_chans)\n        self.max_attempts = int(max_attempts)\n\
-      \        self.tx_chan = int(tx_chan)\n\n        if self.num_chans % 2 == 0:\n\
-      \            raise ValueError(\"num_chans should be odd if you want one channel\
-      \ exactly centered at center_freq_hz\")\n\n        self.mid_chan = self.num_chans\
-      \ // 2\n        self.chan = self.mid_chan\n\n        self.jam_lo = None\n  \
-      \      self.jam_hi = None\n        self.active = bool(active)\n        self.follow_rx\
-      \ = bool(follow_rx)\n\n        self._retune_lock = threading.Lock()\n      \
-      \  self._tx_retune_fn = None\n        self._rx_retune_fn = None\n\n    # ----------\
-      \ external hooks ----------\n    def set_tx_retune_fn(self, fn):\n        self._tx_retune_fn\
-      \ = fn\n\n    def set_rx_retune_fn(self, fn):\n        self._rx_retune_fn =\
-      \ fn\n\n    def set_follow_rx(self, follow_rx):\n        self.follow_rx = bool(follow_rx)\n\
-      \n    def set_active(self, active):\n        self.active = bool(active)\n\n\
-      \    # ---------- publishing helpers ----------\n    def _pub_mute(self, state):\n\
-      \        self.message_port_pub(pmt.intern(\"set_mute\"), pmt.to_pmt(bool(state)))\n\
-      \n    def _pub_rf_freq(self, freq_hz):\n        msg = pmt.cons(pmt.intern(\"\
-      rf_freq\"), pmt.from_double(float(freq_hz)))\n        self.message_port_pub(pmt.intern(\"\
-      rf_freq\"), msg)\n\n    def _pub_tx_freq(self, freq_hz):\n        msg = pmt.cons(pmt.intern(\"\
-      tx_freq\"), pmt.from_double(float(freq_hz)))\n        self.message_port_pub(pmt.intern(\"\
-      tx_freq\"), msg)\n\n    def _pub_rx_freq(self, freq_hz):\n        msg = pmt.cons(pmt.intern(\"\
-      rx_freq\"), pmt.from_double(float(freq_hz)))\n        self.message_port_pub(pmt.intern(\"\
-      rx_freq\"), msg)\n\n    # ---------- retune helpers ----------\n    def _retune_tx_hw(self,\
-      \ freq_hz):\n        if self._tx_retune_fn is None:\n            raise RuntimeError(\"\
-      No LimeSDR TX retune callback installed.\")\n        self._tx_retune_fn(float(freq_hz))\n\
+      \        self.num_chans = int(num_chans)\n        self.tx_chan = int(tx_chan)\n\
+      \n        if self.num_chans % 2 == 0:\n            raise ValueError(\"num_chans\
+      \ should be odd if you want one channel exactly centered at center_freq_hz\"\
+      )\n\n        self.mid_chan = self.num_chans // 2\n        self.chan = self.mid_chan\n\
+      \n        # Track the RX center used to interpret relative jammer edges\n  \
+      \      self.current_rx_freq_hz = self.center_freq_hz\n\n        self.jam_lo\
+      \ = None\n        self.jam_hi = None\n        self.active = bool(active)\n \
+      \       self.follow_rx = bool(follow_rx)\n\n        self._retune_lock = threading.Lock()\n\
+      \        self._tx_retune_fn = None\n        self._rx_retune_fn = None\n\n  \
+      \  # ---------- external hooks ----------\n    def set_tx_retune_fn(self, fn):\n\
+      \        self._tx_retune_fn = fn\n\n    def set_rx_retune_fn(self, fn):\n  \
+      \      self._rx_retune_fn = fn\n\n    def set_follow_rx(self, follow_rx):\n\
+      \        self.follow_rx = bool(follow_rx)\n\n    def set_active(self, active):\n\
+      \        self.active = bool(active)\n\n    # ---------- publishing helpers ----------\n\
+      \    def _pub_mute(self, state):\n        self.message_port_pub(pmt.intern(\"\
+      set_mute\"), pmt.to_pmt(bool(state)))\n\n    def _pub_rf_freq(self, freq_hz):\n\
+      \        msg = pmt.cons(pmt.intern(\"rf_freq\"), pmt.from_double(float(freq_hz)))\n\
+      \        self.message_port_pub(pmt.intern(\"rf_freq\"), msg)\n\n    def _pub_tx_freq(self,\
+      \ freq_hz):\n        msg = pmt.cons(pmt.intern(\"tx_freq\"), pmt.from_double(float(freq_hz)))\n\
+      \        self.message_port_pub(pmt.intern(\"tx_freq\"), msg)\n\n    def _pub_rx_freq(self,\
+      \ freq_hz):\n        msg = pmt.cons(pmt.intern(\"rx_freq\"), pmt.from_double(float(freq_hz)))\n\
+      \        self.message_port_pub(pmt.intern(\"rx_freq\"), msg)\n\n    # ----------\
+      \ retune helpers ----------\n    def _retune_tx_hw(self, freq_hz):\n       \
+      \ if self._tx_retune_fn is None:\n            raise RuntimeError(\"No LimeSDR\
+      \ TX retune callback installed.\")\n        self._tx_retune_fn(float(freq_hz))\n\
       \n    def _retune_rx_hw(self, freq_hz):\n        if self._rx_retune_fn is None:\n\
       \            raise RuntimeError(\"No LimeSDR RX retune callback installed.\"\
       )\n        self._rx_retune_fn(float(freq_hz))\n\n    def _retune_with_mute(self,\
       \ freq_hz):\n        with self._retune_lock:\n            self._pub_mute(True)\n\
       \n            # Always retune TX\n            self._retune_tx_hw(freq_hz)\n\
-      \            self._pub_tx_freq(freq_hz)\n\n            # Only retune RX if enabled\n\
-      \            if self.follow_rx:\n                self._retune_rx_hw(freq_hz)\n\
-      \                self._pub_rx_freq(freq_hz)\n\n            self._pub_rf_freq(freq_hz)\n\
-      \            threading.Timer(self.mute_time_s, lambda: self._pub_mute(False)).start()\n\
-      \n    # ---------- jammer logic ----------\n    def _is_no_jammer(self):\n \
-      \       return (\n            self.jam_lo is None or self.jam_hi is None or\n\
-      \            (self.jam_lo == 0.0 and self.jam_hi == 0.0)\n        )\n\n    @staticmethod\n\
-      \    def _overlap(a_lo, a_hi, b_lo, b_hi):\n        return (a_lo <= b_hi) and\
-      \ (b_lo <= a_hi)\n\n    def _hop_band(self, f_center):\n        half = 0.5 *\
-      \ self.chan_bw_hz\n        return (f_center - half - self.guard_hz, f_center\
-      \ + half + self.guard_hz)\n\n    def _hop_overlaps_jam(self, f_center):\n  \
-      \      if self._is_no_jammer():\n            return False\n        c_lo, c_hi\
-      \ = self._hop_band(f_center)\n        return self._overlap(c_lo, c_hi, self.jam_lo,\
-      \ self.jam_hi)\n\n    # ---------- hop grid ----------\n    def _grid_freq(self,\
-      \ chan):\n        offset_index = int(chan) - self.mid_chan\n        return self.center_freq_hz\
-      \ + offset_index * self.chan_spacing\n\n    def _pick_next_chan(self):\n   \
-      \     step = self.rng.randint(1, self.num_chans - 1)\n        return (self.chan\
-      \ + step) % self.num_chans\n\n    def _nearest_valid_chan_for_freq(self, f_hz):\n\
-      \        offset = f_hz - self.center_freq_hz\n        idx = round(offset / self.chan_spacing)\
-      \ + self.mid_chan\n        idx = max(0, min(self.num_chans - 1, idx))\n    \
-      \    return idx\n\n    def _move_center_to_clear_jam(self, f_center):\n    \
-      \    if not self._hop_overlaps_jam(f_center):\n            return f_center\n\
-      \n        half = 0.5 * self.chan_bw_hz\n        need_below = self.jam_lo - self.guard_hz\
-      \ - half\n        need_above = self.jam_hi + self.guard_hz + half\n\n      \
-      \  if abs(f_center - need_below) <= abs(need_above - f_center):\n          \
-      \  chan = self._nearest_valid_chan_for_freq(need_below)\n        else:\n   \
-      \         chan = self._nearest_valid_chan_for_freq(need_above)\n\n        return\
-      \ self._grid_freq(chan)\n\n    def _fallback_safe_freq(self):\n        for c\
-      \ in range(self.num_chans):\n            f = self._grid_freq(c)\n          \
-      \  if not self._hop_overlaps_jam(f):\n                return f\n        return\
-      \ self._grid_freq(self.mid_chan)\n\n    # ---------- message handlers ----------\n\
-      \    def _on_edges(self, msg):\n        \"\"\"\n        Expects PMT dict with\
-      \ absolute RF jammer edges:\n            {\"f_lo_hz\": 914950000.0, \"f_hi_hz\"\
-      : 915050000.0}\n        \"\"\"\n        try:\n            if not pmt.is_dict(msg):\n\
+      \            self._pub_tx_freq(freq_hz)\n\n            # Optionally retune RX\
+      \ too\n            if self.follow_rx:\n                self._retune_rx_hw(freq_hz)\n\
+      \                self.current_rx_freq_hz = float(freq_hz)\n                self._pub_rx_freq(freq_hz)\n\
+      \n            self._pub_rf_freq(freq_hz)\n            threading.Timer(self.mute_time_s,\
+      \ lambda: self._pub_mute(False)).start()\n\n    # ---------- jammer/channel\
+      \ logic ----------\n    def _is_no_jammer(self):\n        return (\n       \
+      \     self.jam_lo is None or self.jam_hi is None or\n            (self.jam_lo\
+      \ == 0.0 and self.jam_hi == 0.0)\n        )\n\n    @staticmethod\n    def _overlap(a_lo,\
+      \ a_hi, b_lo, b_hi):\n        return (a_lo <= b_hi) and (b_lo <= a_hi)\n\n \
+      \   def _grid_freq(self, chan):\n        offset_index = int(chan) - self.mid_chan\n\
+      \        return self.center_freq_hz + offset_index * self.chan_spacing\n\n \
+      \   def _chan_band(self, chan):\n        f = self._grid_freq(chan)\n       \
+      \ half = 0.5 * self.chan_bw_hz\n        return (f - half - self.guard_hz, f\
+      \ + half + self.guard_hz)\n\n    def _chan_is_blocked(self, chan):\n       \
+      \ if self._is_no_jammer():\n            return False\n\n        c_lo, c_hi =\
+      \ self._chan_band(chan)\n        return self._overlap(c_lo, c_hi, self.jam_lo,\
+      \ self.jam_hi)\n\n    def _available_chans(self):\n        return [c for c in\
+      \ range(self.num_chans) if not self._chan_is_blocked(c)]\n\n    # ----------\
+      \ message handlers ----------\n    def _on_edges(self, msg):\n        \"\"\"\
+      \n        Expects PMT dict with jammer edges RELATIVE to the current RX center:\n\
+      \            {\"f_lo_hz\": -1.0e6, \"f_hi_hz\": +1.0e6}\n        Converts them\
+      \ to absolute RF Hz.\n        \"\"\"\n        try:\n            if not pmt.is_dict(msg):\n\
       \                return\n\n            lo_p = pmt.dict_ref(msg, pmt.intern(\"\
       f_lo_hz\"), pmt.PMT_NIL)\n            hi_p = pmt.dict_ref(msg, pmt.intern(\"\
       f_hi_hz\"), pmt.PMT_NIL)\n            if lo_p is pmt.PMT_NIL or hi_p is pmt.PMT_NIL:\n\
-      \                return\n\n            lo = float(pmt.to_double(lo_p))\n   \
-      \         hi = float(pmt.to_double(hi_p))\n            if hi < lo:\n       \
-      \         lo, hi = hi, lo\n\n            self.jam_lo = lo\n            self.jam_hi\
-      \ = hi\n        except Exception:\n            return\n\n    def _on_tick(self,\
-      \ msg):\n        if not self.active:\n            self._pub_mute(True)\n   \
-      \         return\n\n        chosen = None\n        attempts = 0\n\n        while\
-      \ attempts < self.max_attempts:\n            next_chan = self._pick_next_chan()\n\
-      \            f = self._grid_freq(next_chan)\n            f2 = self._move_center_to_clear_jam(f)\n\
-      \n            if not self._hop_overlaps_jam(f2):\n                chosen = f2\n\
-      \                self.chan = self._nearest_valid_chan_for_freq(f2)\n       \
-      \         break\n\n            attempts += 1\n\n        if chosen is None:\n\
-      \            chosen = self._fallback_safe_freq()\n            self.chan = self._nearest_valid_chan_for_freq(chosen)\n\
-      \n        self._retune_with_mute(chosen)"
+      \                return\n\n            lo_rel = float(pmt.to_double(lo_p))\n\
+      \            hi_rel = float(pmt.to_double(hi_p))\n            if hi_rel < lo_rel:\n\
+      \                lo_rel, hi_rel = hi_rel, lo_rel\n\n            # Convert relative/baseband\
+      \ jammer edges to absolute RF jammer edges\n            self.jam_lo = self.current_rx_freq_hz\
+      \ + lo_rel\n            self.jam_hi = self.current_rx_freq_hz + hi_rel\n\n \
+      \       except Exception:\n            return\n\n    def _on_tick(self, msg):\n\
+      \        if not self.active:\n            self._pub_mute(True)\n           \
+      \ return\n\n        available = self._available_chans()\n\n        # If everything\
+      \ is blocked, stay where you are\n        if not available:\n            chosen_chan\
+      \ = self.chan\n        else:\n            # Prefer not to stay on the same channel\
+      \ if alternatives exist\n            choices = [c for c in available if c !=\
+      \ self.chan]\n            if choices:\n                chosen_chan = self.rng.choice(choices)\n\
+      \            else:\n                chosen_chan = available[0]\n\n        self.chan\
+      \ = chosen_chan\n        chosen_freq = self._grid_freq(self.chan)\n        self._retune_with_mute(chosen_freq)"
     active: 'True'
     affinity: ''
     alias: ''
@@ -640,9 +630,8 @@ blocks:
     chan_bw_hz: 60e3
     chan_spacing: 100e3
     comment: ''
-    follow_rx: 'True'
+    follow_rx: 'False'
     guard_hz: '1000'
-    max_attempts: '128'
     maxoutbuf: '0'
     minoutbuf: '0'
     mute_time_s: 1e-2
@@ -650,18 +639,18 @@ blocks:
     seed: '1'
     tx_chan: '0'
   states:
-    _io_cache: ('FHSS hopper (separate TX/RX retune callbacks)', 'blk', [('seed',
-      '12345'), ('center_freq_hz', '915000000.0'), ('chan_spacing', '200000.0'), ('chan_bw_hz',
+    _io_cache: ('FHSS hopper (simple jam-aware channel mask)', 'blk', [('seed', '12345'),
+      ('center_freq_hz', '915000000.0'), ('chan_spacing', '200000.0'), ('chan_bw_hz',
       '60000.0'), ('mute_time_s', '0.02'), ('guard_hz', '2000.0'), ('num_chans', '25'),
-      ('max_attempts', '128'), ('tx_chan', '0'), ('follow_rx', 'False'), ('active',
-      'True')], [('tick', 'message', 1), ('edges', 'message', 1)], [('rx_freq', 'message',
-      1), ('tx_freq', 'message', 1), ('rf_freq', 'message', 1), ('set_mute', 'message',
-      1)], '', ['active', 'center_freq_hz', 'chan_bw_hz', 'chan_spacing', 'follow_rx',
-      'guard_hz', 'max_attempts', 'mute_time_s', 'num_chans', 'tx_chan'])
+      ('tx_chan', '0'), ('follow_rx', 'False'), ('active', 'True')], [('tick', 'message',
+      1), ('edges', 'message', 1)], [('rx_freq', 'message', 1), ('tx_freq', 'message',
+      1), ('rf_freq', 'message', 1), ('set_mute', 'message', 1)], '', ['active', 'center_freq_hz',
+      'chan_bw_hz', 'chan_spacing', 'follow_rx', 'guard_hz', 'mute_time_s', 'num_chans',
+      'tx_chan'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 572.0]
+    coordinate: [384, 556.0]
     rotation: 0
     state: enabled
 - name: epy_block_2
@@ -1004,7 +993,7 @@ blocks:
     channel_mode: '0'
     comment: ''
     dacVal: '180'
-    digital_bandw_ch0: 15e3
+    digital_bandw_ch0: 2.5e6
     digital_bandw_ch1: samp_rate
     filename: ''
     gain_dB_ch0: '30'
@@ -1399,8 +1388,8 @@ blocks:
     freqhalf: 'True'
     grid: 'False'
     gui_hint: tab@1
-    int_max: '10'
-    int_min: '-140'
+    int_max: '-30'
+    int_min: '-60'
     label1: ''
     label10: ''
     label2: ''
@@ -1576,18 +1565,19 @@ connections:
 - [blocks_throttle2_1, '0', qtgui_waterfall_sink_x_1_0, '0']
 - [blocks_var_to_msg_0, msgout, freq_xlating_fir_filter_xxx_2, freq]
 - [blocks_wavfile_source_0, '0', rational_resampler_xxx_1, '0']
+- [epy_block_0, edges, blocks_message_debug_0, print]
 - [epy_block_0, edges, epy_block_1_0, edges]
 - [fft_vxx_0, '0', blocks_throttle2_0_0_0, '0']
 - [fft_vxx_0_0, '0', blocks_throttle2_0_0_0_0, '0']
 - [filter_fft_low_pass_filter_0, '0', freq_xlating_fir_filter_xxx_2, '0']
 - [filter_fft_low_pass_filter_1, '0', analog_simple_squelch_cc_0, '0']
+- [filter_fft_low_pass_filter_1, '0', qtgui_waterfall_sink_x_1, '0']
 - [filter_fft_low_pass_filter_2, '0', blocks_multiply_const_vxx_1, '0']
 - [filter_fft_low_pass_filter_3, '0', filter_fft_low_pass_filter_2, '0']
 - [filter_fft_low_pass_filter_4, '0', audio_sink_0, '0']
 - [freq_xlating_fir_filter_xxx_2, '0', blocks_throttle2_0_0, '0']
 - [limesdr_source_0, '0', blocks_stream_to_vector_0_0, '0']
 - [limesdr_source_0, '0', filter_fft_low_pass_filter_1, '0']
-- [limesdr_source_0, '0', qtgui_waterfall_sink_x_1, '0']
 - [limesdr_source_0, '0', qtgui_waterfall_sink_x_1_0, '0']
 - [rational_resampler_xxx_1, '0', analog_frequency_modulator_fc_0, '0']
 - [virtual_source_0, '0', blocks_throttle2_1, '0']

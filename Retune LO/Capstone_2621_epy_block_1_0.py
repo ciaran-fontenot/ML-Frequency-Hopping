@@ -1,7 +1,6 @@
 import pmt
 import random
 import threading
-import math
 from gnuradio import gr
 
 
@@ -15,14 +14,13 @@ class blk(gr.basic_block):
         mute_time_s=0.02,
         guard_hz=2e3,
         num_chans=25,
-        max_attempts=128,
         tx_chan=0,
         follow_rx=False,
         active=True,
     ):
         gr.basic_block.__init__(
             self,
-            name='FHSS hopper (separate TX/RX retune callbacks)',
+            name='FHSS hopper (simple jam-aware channel mask)',
             in_sig=None,
             out_sig=None
         )
@@ -30,8 +28,6 @@ class blk(gr.basic_block):
         # OUT ports
         self.message_port_register_out(pmt.intern("set_mute"))
         self.message_port_register_out(pmt.intern("rf_freq"))
-
-        # Optional debug ports
         self.message_port_register_out(pmt.intern("tx_freq"))
         self.message_port_register_out(pmt.intern("rx_freq"))
 
@@ -51,7 +47,6 @@ class blk(gr.basic_block):
         self.mute_time_s = float(mute_time_s)
         self.guard_hz = float(guard_hz)
         self.num_chans = int(num_chans)
-        self.max_attempts = int(max_attempts)
         self.tx_chan = int(tx_chan)
 
         if self.num_chans % 2 == 0:
@@ -59,6 +54,9 @@ class blk(gr.basic_block):
 
         self.mid_chan = self.num_chans // 2
         self.chan = self.mid_chan
+
+        # Track the RX center used to interpret relative jammer edges
+        self.current_rx_freq_hz = self.center_freq_hz
 
         self.jam_lo = None
         self.jam_hi = None
@@ -117,15 +115,16 @@ class blk(gr.basic_block):
             self._retune_tx_hw(freq_hz)
             self._pub_tx_freq(freq_hz)
 
-            # Only retune RX if enabled
+            # Optionally retune RX too
             if self.follow_rx:
                 self._retune_rx_hw(freq_hz)
+                self.current_rx_freq_hz = float(freq_hz)
                 self._pub_rx_freq(freq_hz)
 
             self._pub_rf_freq(freq_hz)
             threading.Timer(self.mute_time_s, lambda: self._pub_mute(False)).start()
 
-    # ---------- jammer logic ----------
+    # ---------- jammer/channel logic ----------
     def _is_no_jammer(self):
         return (
             self.jam_lo is None or self.jam_hi is None or
@@ -136,58 +135,31 @@ class blk(gr.basic_block):
     def _overlap(a_lo, a_hi, b_lo, b_hi):
         return (a_lo <= b_hi) and (b_lo <= a_hi)
 
-    def _hop_band(self, f_center):
-        half = 0.5 * self.chan_bw_hz
-        return (f_center - half - self.guard_hz, f_center + half + self.guard_hz)
-
-    def _hop_overlaps_jam(self, f_center):
-        if self._is_no_jammer():
-            return False
-        c_lo, c_hi = self._hop_band(f_center)
-        return self._overlap(c_lo, c_hi, self.jam_lo, self.jam_hi)
-
-    # ---------- hop grid ----------
     def _grid_freq(self, chan):
         offset_index = int(chan) - self.mid_chan
         return self.center_freq_hz + offset_index * self.chan_spacing
 
-    def _pick_next_chan(self):
-        step = self.rng.randint(1, self.num_chans - 1)
-        return (self.chan + step) % self.num_chans
-
-    def _nearest_valid_chan_for_freq(self, f_hz):
-        offset = f_hz - self.center_freq_hz
-        idx = round(offset / self.chan_spacing) + self.mid_chan
-        idx = max(0, min(self.num_chans - 1, idx))
-        return idx
-
-    def _move_center_to_clear_jam(self, f_center):
-        if not self._hop_overlaps_jam(f_center):
-            return f_center
-
+    def _chan_band(self, chan):
+        f = self._grid_freq(chan)
         half = 0.5 * self.chan_bw_hz
-        need_below = self.jam_lo - self.guard_hz - half
-        need_above = self.jam_hi + self.guard_hz + half
+        return (f - half - self.guard_hz, f + half + self.guard_hz)
 
-        if abs(f_center - need_below) <= abs(need_above - f_center):
-            chan = self._nearest_valid_chan_for_freq(need_below)
-        else:
-            chan = self._nearest_valid_chan_for_freq(need_above)
+    def _chan_is_blocked(self, chan):
+        if self._is_no_jammer():
+            return False
 
-        return self._grid_freq(chan)
+        c_lo, c_hi = self._chan_band(chan)
+        return self._overlap(c_lo, c_hi, self.jam_lo, self.jam_hi)
 
-    def _fallback_safe_freq(self):
-        for c in range(self.num_chans):
-            f = self._grid_freq(c)
-            if not self._hop_overlaps_jam(f):
-                return f
-        return self._grid_freq(self.mid_chan)
+    def _available_chans(self):
+        return [c for c in range(self.num_chans) if not self._chan_is_blocked(c)]
 
     # ---------- message handlers ----------
     def _on_edges(self, msg):
         """
-        Expects PMT dict with absolute RF jammer edges:
-            {"f_lo_hz": 914950000.0, "f_hi_hz": 915050000.0}
+        Expects PMT dict with jammer edges RELATIVE to the current RX center:
+            {"f_lo_hz": -1.0e6, "f_hi_hz": +1.0e6}
+        Converts them to absolute RF Hz.
         """
         try:
             if not pmt.is_dict(msg):
@@ -198,13 +170,15 @@ class blk(gr.basic_block):
             if lo_p is pmt.PMT_NIL or hi_p is pmt.PMT_NIL:
                 return
 
-            lo = float(pmt.to_double(lo_p))
-            hi = float(pmt.to_double(hi_p))
-            if hi < lo:
-                lo, hi = hi, lo
+            lo_rel = float(pmt.to_double(lo_p))
+            hi_rel = float(pmt.to_double(hi_p))
+            if hi_rel < lo_rel:
+                lo_rel, hi_rel = hi_rel, lo_rel
 
-            self.jam_lo = lo
-            self.jam_hi = hi
+            # Convert relative/baseband jammer edges to absolute RF jammer edges
+            self.jam_lo = self.current_rx_freq_hz + lo_rel
+            self.jam_hi = self.current_rx_freq_hz + hi_rel
+
         except Exception:
             return
 
@@ -213,23 +187,19 @@ class blk(gr.basic_block):
             self._pub_mute(True)
             return
 
-        chosen = None
-        attempts = 0
+        available = self._available_chans()
 
-        while attempts < self.max_attempts:
-            next_chan = self._pick_next_chan()
-            f = self._grid_freq(next_chan)
-            f2 = self._move_center_to_clear_jam(f)
+        # If everything is blocked, stay where you are
+        if not available:
+            chosen_chan = self.chan
+        else:
+            # Prefer not to stay on the same channel if alternatives exist
+            choices = [c for c in available if c != self.chan]
+            if choices:
+                chosen_chan = self.rng.choice(choices)
+            else:
+                chosen_chan = available[0]
 
-            if not self._hop_overlaps_jam(f2):
-                chosen = f2
-                self.chan = self._nearest_valid_chan_for_freq(f2)
-                break
-
-            attempts += 1
-
-        if chosen is None:
-            chosen = self._fallback_safe_freq()
-            self.chan = self._nearest_valid_chan_for_freq(chosen)
-
-        self._retune_with_mute(chosen)
+        self.chan = chosen_chan
+        chosen_freq = self._grid_freq(self.chan)
+        self._retune_with_mute(chosen_freq)
